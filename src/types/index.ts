@@ -57,12 +57,60 @@ export interface Lead {
   status: LeadStatus;
   notes: string;
   
+  // Google Maps Lead Finder Integracija
+  googlePlaceId?: string;
+  googleMapsUrl?: string;
+  rating?: number;
+  userRatingsTotal?: number;
+  leadScore?: number;
+  webStatus?: 'NO_WEBSITE' | 'NEEDS_RECONSTRUCTION' | 'BROKEN_WEBSITE' | 'HAS_WEBSITE';
+  scoreReasons?: string[];
+  
   lastContactDate?: string; // YYYY-MM-DD
   nextFollowUpDate?: string; // YYYY-MM-DD
   
   createdAt: string;
   updatedAt: string;
   userId: string;
+}
+
+export interface GoogleMapsPlace {
+  placeId: string;
+  name: string;
+  address: string;
+  city: string;
+  country?: string;
+  phone: string;
+  website: string;
+  rating: number;
+  userRatingsTotal: number;
+  category: string;
+  types: string[];
+  lat: number;
+  lng: number;
+  googleMapsUrl: string;
+  photoUrl?: string;
+  
+  // Analiza web prisustva & Lead Score
+  webStatus: 'NO_WEBSITE' | 'NEEDS_RECONSTRUCTION' | 'BROKEN_WEBSITE' | 'HAS_WEBSITE';
+  leadScore: number;
+  scoreCategory: 'Visok potencijal' | 'Dobar potencijal' | 'Potrebna dodatna analiza' | 'Nizak prioritet';
+  recommendedService: string;
+  scoreReasons: string[];
+  analyzedAt: string;
+}
+
+export interface SavedSearchQuery {
+  id: string;
+  queryText: string;
+  city: string;
+  country: string;
+  category: string;
+  radiusKm: number;
+  minRating: number;
+  minReviews: number;
+  date: string;
+  resultsCount: number;
 }
 
 export type ClientStatus = 'Aktivno' | 'Pauzirano' | 'Završeno' | 'Neaktivno';

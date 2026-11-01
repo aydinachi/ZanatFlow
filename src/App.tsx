@@ -6,6 +6,7 @@ import { Header } from './components/Header';
 // Views
 import { LoginView } from './components/views/LoginView';
 import { DashboardView } from './components/views/DashboardView';
+import { LeadFinderView } from './components/views/LeadFinderView';
 import { ResearchView } from './components/views/ResearchView';
 import { LeadsView } from './components/views/LeadsView';
 import { ClientsView } from './components/views/ClientsView';
@@ -172,6 +173,8 @@ function MainAppContent() {
               onSelectLead={handleSelectLead}
             />
           )}
+
+          {activeTab === 'finder' && <LeadFinderView />}
 
           {activeTab === 'research' && (
             <ResearchView

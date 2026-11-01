@@ -17,11 +17,13 @@ import {
   Sparkles,
   LogOut,
   LogIn,
+  MapPin,
 } from 'lucide-react';
 import { useData } from '../context/DataContext';
 
 export type ActiveTab =
   | 'dashboard'
+  | 'finder'
   | 'research'
   | 'leads'
   | 'clients'
@@ -65,6 +67,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const navItems = [
     { id: 'dashboard', label: 'Kontrolna ploča', icon: LayoutDashboard },
+    { id: 'finder', label: 'Finder klijenata (Maps)', icon: MapPin },
     { id: 'research', label: 'Istraživanje (Novi)', icon: Sparkles, badge: researchLeadsCount },
     { id: 'leads', label: 'Potencijalni klijenti', icon: Target, badge: followUpLeadsCount },
     { id: 'clients', label: 'Klijenti', icon: Users },
