@@ -31,8 +31,10 @@ import {
 } from 'lucide-react';
 import { APIProvider, Map, AdvancedMarker, Pin, InfoWindow } from '@vis.gl/react-google-maps';
 import { GoogleMapsPlace, SavedSearchQuery } from '../../types';
-import { searchGoogleMapsPlaces, analyzePlaceWebPresence } from '../../services/googlePlacesService';
+import { searchGoogleMapsPlaces, analyzePlaceWebPresence, waitForGoogleMapsPlaces } from '../../services/googlePlacesService';
 import { useData } from '../../context/DataContext';
+
+const GOOGLE_MAPS_LIBRARIES: ('places' | 'geometry' | 'drawing' | 'visualization')[] = ['places'];
 
 const PRESET_CITIES = [
   'Sarajevo',
@@ -98,11 +100,16 @@ export const LeadFinderView: React.FC = () => {
     setIsLoading(true);
     setSelectedPlaceIds([]);
     try {
-      const categoryToUse = customCategory.trim() || selectedCategories.join(', ') || 'Poslovni subjekti';
+      const categoriesToPass = customCategory.trim()
+        ? [customCategory.trim()]
+        : selectedCategories.length > 0
+        ? selectedCategories
+        : ['Poslovni subjekti'];
+
       const results = await searchGoogleMapsPlaces({
         city: activeCity,
         country: selectedCountry,
-        category: categoryToUse,
+        categories: categoriesToPass,
         queryText: queryText,
         minRating: minRating,
         minReviews: minReviews,
@@ -121,7 +128,7 @@ export const LeadFinderView: React.FC = () => {
         queryText,
         city: activeCity,
         country: selectedCountry,
-        category: categoryToUse,
+        category: categoriesToPass.join(', '),
         radiusKm: 15,
         minRating,
         minReviews,
@@ -286,7 +293,8 @@ export const LeadFinderView: React.FC = () => {
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
 
   return (
-    <div className="space-y-6 pb-12 font-sans text-slate-900 dark:text-slate-100">
+    <APIProvider apiKey={apiKey} libraries={GOOGLE_MAPS_LIBRARIES}>
+      <div className="space-y-6 pb-12 font-sans text-slate-900 dark:text-slate-100">
       {/* Toast Notification Banner */}
       {notification && (
         <div
@@ -716,57 +724,55 @@ export const LeadFinderView: React.FC = () => {
       {/* VIEW 2: GOOGLE MAPS INTERACTIVE VIEW */}
       {viewMode === 'map' && (
         <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden h-[600px] relative">
-          <APIProvider apiKey={apiKey}>
-            <Map
-              defaultCenter={places[0] ? { lat: places[0].lat, lng: places[0].lng } : { lat: 43.8563, lng: 18.4131 }}
-              defaultZoom={13}
-              mapId="DEMO_MAP_ID"
-              internalUsageAttributionIds={['gmp_mcp_codeassist_v1_aistudio']}
-              className="w-full h-full"
-            >
-              {places.map((place) => (
-                <AdvancedMarker
-                  key={place.placeId}
-                  position={{ lat: place.lat, lng: place.lng }}
-                  onClick={() => setSelectedPlace(place)}
-                >
-                  <Pin
-                    background={
-                      place.webStatus === 'NO_WEBSITE'
-                        ? '#ef4444'
-                        : place.webStatus === 'NEEDS_RECONSTRUCTION'
-                        ? '#f59e0b'
-                        : '#10b981'
-                    }
-                    borderColor="#ffffff"
-                    glyphColor="#ffffff"
-                  />
-                </AdvancedMarker>
-              ))}
+          <Map
+            defaultCenter={places[0] ? { lat: places[0].lat, lng: places[0].lng } : { lat: 43.8563, lng: 18.4131 }}
+            defaultZoom={13}
+            mapId="DEMO_MAP_ID"
+            internalUsageAttributionIds={['gmp_mcp_codeassist_v1_aistudio']}
+            className="w-full h-full"
+          >
+            {places.map((place) => (
+              <AdvancedMarker
+                key={place.placeId}
+                position={{ lat: place.lat, lng: place.lng }}
+                onClick={() => setSelectedPlace(place)}
+              >
+                <Pin
+                  background={
+                    place.webStatus === 'NO_WEBSITE'
+                      ? '#ef4444'
+                      : place.webStatus === 'NEEDS_RECONSTRUCTION'
+                      ? '#f59e0b'
+                      : '#10b981'
+                  }
+                  borderColor="#ffffff"
+                  glyphColor="#ffffff"
+                />
+              </AdvancedMarker>
+            ))}
 
-              {selectedPlace && (
-                <InfoWindow
-                  position={{ lat: selectedPlace.lat, lng: selectedPlace.lng }}
-                  onCloseClick={() => setSelectedPlace(null)}
-                >
-                  <div className="p-2 space-y-2 max-w-xs font-sans text-slate-900">
-                    <h3 className="font-bold text-sm text-slate-900">{selectedPlace.name}</h3>
-                    <p className="text-[11px] text-slate-500">{selectedPlace.address}</p>
-                    <div className="flex items-center gap-2 text-xs">
-                      <span className="font-bold text-emerald-600">Score: {selectedPlace.leadScore}/100</span>
-                      <span className="text-slate-400">({selectedPlace.rating}★)</span>
-                    </div>
-                    <button
-                      onClick={() => handleAddSingleToCRM(selectedPlace)}
-                      className="w-full py-1.5 bg-indigo-600 text-white rounded-lg font-bold text-xs shadow-xs"
-                    >
-                      + Dodaj u moje leadove
-                    </button>
+            {selectedPlace && (
+              <InfoWindow
+                position={{ lat: selectedPlace.lat, lng: selectedPlace.lng }}
+                onCloseClick={() => setSelectedPlace(null)}
+              >
+                <div className="p-2 space-y-2 max-w-xs font-sans text-slate-900">
+                  <h3 className="font-bold text-sm text-slate-900">{selectedPlace.name}</h3>
+                  <p className="text-[11px] text-slate-500">{selectedPlace.address}</p>
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="font-bold text-emerald-600">Score: {selectedPlace.leadScore}/100</span>
+                    <span className="text-slate-400">({selectedPlace.rating}★)</span>
                   </div>
-                </InfoWindow>
-              )}
-            </Map>
-          </APIProvider>
+                  <button
+                    onClick={() => handleAddSingleToCRM(selectedPlace)}
+                    className="w-full py-1.5 bg-indigo-600 text-white rounded-lg font-bold text-xs shadow-xs"
+                  >
+                    + Dodaj u moje leadove
+                  </button>
+                </div>
+              </InfoWindow>
+            )}
+          </Map>
         </div>
       )}
 
@@ -936,5 +942,6 @@ export const LeadFinderView: React.FC = () => {
         </div>
       )}
     </div>
+    </APIProvider>
   );
 };
