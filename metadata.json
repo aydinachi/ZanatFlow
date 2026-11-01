@@ -1,0 +1,6 @@
+{
+  "name": "ZanatFlow",
+  "description": "ZanatFlow - Personalni CRM i sistem za upravljanje freelance poslovanjem. Autor: Ajdin Beganović.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

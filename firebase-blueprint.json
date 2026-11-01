@@ -1,0 +1,201 @@
+{
+  "entities": {
+    "Lead": {
+      "title": "Lead",
+      "description": "Potencijalni klijent i prateći podaci o prodajnoj prilici",
+      "type": "object",
+      "properties": {
+        "companyName": { "type": "string", "maxLength": 200 },
+        "contactName": { "type": "string", "maxLength": 150 },
+        "email": { "type": "string", "maxLength": 150 },
+        "phone": { "type": "string", "maxLength": 50 },
+        "website": { "type": "string", "maxLength": 300 },
+        "city": { "type": "string", "maxLength": 100 },
+        "industry": { "type": "string", "maxLength": 100 },
+        "source": { "type": "string", "maxLength": 100 },
+        "serviceType": { "type": "string", "maxLength": 150 },
+        "currentWebsiteQuality": { "type": "string", "maxLength": 50 },
+        "identifiedProblems": { "type": "string", "maxLength": 2000 },
+        "proposedSolution": { "type": "string", "maxLength": 2000 },
+        "estimatedValue": { "type": "number" },
+        "currency": { "type": "string", "maxLength": 10 },
+        "priority": { "type": "string", "maxLength": 20 },
+        "probability": { "type": "number" },
+        "status": { "type": "string", "maxLength": 50 },
+        "notes": { "type": "string", "maxLength": 3000 },
+        "lastContactDate": { "type": "string", "maxLength": 50 },
+        "nextFollowUpDate": { "type": "string", "maxLength": 50 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "maxLength": 50 },
+        "updatedAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["companyName", "userId"]
+    },
+    "Client": {
+      "title": "Client",
+      "description": "Stvarni klijent prebačen iz potencijalnog klijenta ili direktno dodan",
+      "type": "object",
+      "properties": {
+        "companyName": { "type": "string", "maxLength": 200 },
+        "contactName": { "type": "string", "maxLength": 150 },
+        "email": { "type": "string", "maxLength": 150 },
+        "phone": { "type": "string", "maxLength": 50 },
+        "address": { "type": "string", "maxLength": 200 },
+        "website": { "type": "string", "maxLength": 300 },
+        "industry": { "type": "string", "maxLength": 100 },
+        "status": { "type": "string", "maxLength": 50 },
+        "notes": { "type": "string", "maxLength": 3000 },
+        "convertedFromLeadId": { "type": "string", "maxLength": 128 },
+        "totalEarned": { "type": "number" },
+        "unpaidAmount": { "type": "number" },
+        "currency": { "type": "string", "maxLength": 10 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "maxLength": 50 },
+        "updatedAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["companyName", "userId"]
+    },
+    "Project": {
+      "title": "Project",
+      "description": "Projekat ili izrađena web stranica sa tehničkim i finansijskim detaljima",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "maxLength": 200 },
+        "clientId": { "type": "string", "maxLength": 128 },
+        "clientName": { "type": "string", "maxLength": 200 },
+        "websiteUrl": { "type": "string", "maxLength": 300 },
+        "projectType": { "type": "string", "maxLength": 100 },
+        "description": { "type": "string", "maxLength": 3000 },
+        "startDate": { "type": "string", "maxLength": 50 },
+        "deadlineDate": { "type": "string", "maxLength": 50 },
+        "completedDate": { "type": "string", "maxLength": 50 },
+        "status": { "type": "string", "maxLength": 50 },
+        "agreedPrice": { "type": "number" },
+        "paidAmount": { "type": "number" },
+        "remainingAmount": { "type": "number" },
+        "currency": { "type": "string", "maxLength": 10 },
+        "hostingProvider": { "type": "string", "maxLength": 150 },
+        "domainRegistrar": { "type": "string", "maxLength": 150 },
+        "domainExpirationDate": { "type": "string", "maxLength": 50 },
+        "hostingExpirationDate": { "type": "string", "maxLength": 50 },
+        "githubRepo": { "type": "string", "maxLength": 300 },
+        "deploymentUrl": { "type": "string", "maxLength": 300 },
+        "adminPanelUrl": { "type": "string", "maxLength": 300 },
+        "credentialsNotes": { "type": "string", "maxLength": 2000 },
+        "notes": { "type": "string", "maxLength": 3000 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "maxLength": 50 },
+        "updatedAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["title", "userId"]
+    },
+    "Task": {
+      "title": "Task",
+      "description": "Zadatak ili podsjetnik za rad i javljanje klijentima",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "maxLength": 200 },
+        "description": { "type": "string", "maxLength": 2000 },
+        "dueDate": { "type": "string", "maxLength": 50 },
+        "priority": { "type": "string", "maxLength": 20 },
+        "status": { "type": "string", "maxLength": 30 },
+        "type": { "type": "string", "maxLength": 50 },
+        "relatedClientId": { "type": "string", "maxLength": 128 },
+        "relatedLeadId": { "type": "string", "maxLength": 128 },
+        "relatedProjectId": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "maxLength": 50 },
+        "updatedAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["title", "userId"]
+    },
+    "Activity": {
+      "title": "Activity",
+      "description": "Zapis o komunikaciji i poduzetim akcijama",
+      "type": "object",
+      "properties": {
+        "entityType": { "type": "string", "maxLength": 30 },
+        "entityId": { "type": "string", "maxLength": 128 },
+        "entityName": { "type": "string", "maxLength": 200 },
+        "type": { "type": "string", "maxLength": 50 },
+        "date": { "type": "string", "maxLength": 50 },
+        "description": { "type": "string", "maxLength": 2000 },
+        "nextStep": { "type": "string", "maxLength": 500 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["entityId", "type", "description", "userId"]
+    },
+    "Finance": {
+      "title": "Finance",
+      "description": "Prihod ili trošak poslovanja",
+      "type": "object",
+      "properties": {
+        "type": { "type": "string", "maxLength": 20 },
+        "category": { "type": "string", "maxLength": 100 },
+        "description": { "type": "string", "maxLength": 1000 },
+        "amount": { "type": "number" },
+        "currency": { "type": "string", "maxLength": 10 },
+        "date": { "type": "string", "maxLength": 50 },
+        "dueDate": { "type": "string", "maxLength": 50 },
+        "status": { "type": "string", "maxLength": 30 },
+        "clientId": { "type": "string", "maxLength": 128 },
+        "clientName": { "type": "string", "maxLength": 200 },
+        "projectId": { "type": "string", "maxLength": 128 },
+        "projectName": { "type": "string", "maxLength": 200 },
+        "invoiceNumber": { "type": "string", "maxLength": 50 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "maxLength": 50 },
+        "updatedAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["type", "amount", "category", "userId"]
+    },
+    "Service": {
+      "title": "Service",
+      "description": "Usluga iz cjenovnika sa detaljima i cijenom",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "maxLength": 200 },
+        "description": { "type": "string", "maxLength": 2000 },
+        "basePrice": { "type": "number" },
+        "currency": { "type": "string", "maxLength": 10 },
+        "estimatedDeliveryDays": { "type": "number" },
+        "isPopular": { "type": "boolean" },
+        "userId": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "maxLength": 50 },
+        "updatedAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["name", "basePrice", "userId"]
+    }
+  },
+  "firestore": {
+    "/leads/{leadId}": {
+      "schema": "Lead",
+      "description": "Kolekcija potencijalnih klijenata"
+    },
+    "/clients/{clientId}": {
+      "schema": "Client",
+      "description": "Kolekcija aktivnih i neaktivnih klijenata"
+    },
+    "/projects/{projectId}": {
+      "schema": "Project",
+      "description": "Kolekcija projekata i web stranica"
+    },
+    "/tasks/{taskId}": {
+      "schema": "Task",
+      "description": "Kolekcija zadataka i podsjetnika"
+    },
+    "/activities/{activityId}": {
+      "schema": "Activity",
+      "description": "Historija komunikacije i zabilježenih aktivnosti"
+    },
+    "/finances/{financeId}": {
+      "schema": "Finance",
+      "description": "Evidencija prihoda i troškova"
+    },
+    "/services/{serviceId}": {
+      "schema": "Service",
+      "description": "Definisane usluge i cjenovnik"
+    }
+  }
+}
