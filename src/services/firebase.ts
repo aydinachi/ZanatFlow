@@ -1,5 +1,13 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
+import { 
+  getAuth, 
+  GoogleAuthProvider, 
+  signInWithPopup, 
+  signInWithRedirect, 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  signOut 
+} from 'firebase/auth';
 import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import firebaseConfig from '../../firebase-applet-config.json';
@@ -16,8 +24,37 @@ export async function loginWithGoogle() {
   try {
     const result = await signInWithPopup(auth, googleProvider);
     return result.user;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Greška pri prijavi sa Google računom:', error);
+    // If popup is blocked or unauthorized domain, try redirect or throw detailed error
+    if (error?.code === 'auth/popup-blocked' || error?.code === 'auth/popup-closed-by-user') {
+      try {
+        await signInWithRedirect(auth, googleProvider);
+        return null;
+      } catch (redirectError) {
+        throw redirectError;
+      }
+    }
+    throw error;
+  }
+}
+
+export async function loginWithEmail(email: string, pass: string) {
+  try {
+    const result = await signInWithEmailAndPassword(auth, email, pass);
+    return result.user;
+  } catch (error) {
+    console.error('Greška pri prijavi e-mailom:', error);
+    throw error;
+  }
+}
+
+export async function registerWithEmail(email: string, pass: string) {
+  try {
+    const result = await createUserWithEmailAndPassword(auth, email, pass);
+    return result.user;
+  } catch (error) {
+    console.error('Greška pri registraciji e-mailom:', error);
     throw error;
   }
 }

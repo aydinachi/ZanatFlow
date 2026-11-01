@@ -19,7 +19,7 @@ import {
   INITIAL_FINANCES,
   INITIAL_SERVICES,
 } from '../services/mockData';
-import { auth, db, loginWithGoogle, logoutUser } from '../services/firebase';
+import { auth, db, loginWithGoogle, loginWithEmail, registerWithEmail, logoutUser } from '../services/firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import {
   collection,
@@ -42,6 +42,8 @@ interface DataContextType {
   toggleTheme: () => void;
   toggleDemoMode: () => void;
   loginGoogle: () => Promise<void>;
+  loginEmail: (email: string, pass: string) => Promise<void>;
+  registerEmail: (email: string, pass: string) => Promise<void>;
   logout: () => Promise<void>;
 
   // Collections
@@ -264,6 +266,27 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsDemoMode(false);
     } catch (e) {
       console.error(e);
+      throw e;
+    }
+  };
+
+  const loginEmail = async (email: string, pass: string) => {
+    try {
+      await loginWithEmail(email, pass);
+      setIsDemoMode(false);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  };
+
+  const registerEmail = async (email: string, pass: string) => {
+    try {
+      await registerWithEmail(email, pass);
+      setIsDemoMode(false);
+    } catch (e) {
+      console.error(e);
+      throw e;
     }
   };
 
@@ -790,6 +813,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         toggleTheme,
         toggleDemoMode,
         loginGoogle,
+        loginEmail,
+        registerEmail,
         logout,
         leads,
         clients,
