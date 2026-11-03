@@ -291,15 +291,40 @@ export const LeadModal: React.FC<LeadModalProps> = ({ isOpen, onClose, leadToEdi
 
               <div>
                 <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
-                  Djelatnost
+                  Djelatnost / Kategorija
                 </label>
                 <input
                   type="text"
-                  placeholder="npr. Ugostiteljstvo, Zdravstvo, IT..."
+                  list="industry-options"
+                  placeholder="npr. Auto škole, Advokati, Stolarija..."
                   value={industry}
                   onChange={(e) => setIndustry(e.target.value)}
                   className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                 />
+                <datalist id="industry-options">
+                  <option value="Restorani" />
+                  <option value="Hoteli i apartmani" />
+                  <option value="Sale za vjenčanja & Eventi" />
+                  <option value="Stomatološke ordinacije" />
+                  <option value="Frizerski saloni" />
+                  <option value="Kozmetički saloni" />
+                  <option value="Fizioterapija & Privatne ordinacije" />
+                  <option value="Veterinarske stanice & Pet Grooming" />
+                  <option value="Autoservisi" />
+                  <option value="Auto škole" />
+                  <option value="Rent-a-Car agencije" />
+                  <option value="Šlep službe & Asistencija" />
+                  <option value="Građevinske firme" />
+                  <option value="Vodoinstalateri & Grijanje" />
+                  <option value="Stolarija & Namještaj po mjeri" />
+                  <option value="Elektroinstalacije & Solarni sistemi" />
+                  <option value="Servisi za čišćenje & Održavanje" />
+                  <option value="Advokatske kancelarije" />
+                  <option value="Knjigovodstveni servisi" />
+                  <option value="Fotografi & Videografi" />
+                  <option value="Škole stranih jezika & Instrukcije" />
+                  <option value="Fitness centri & Personalni treneri" />
+                </datalist>
               </div>
 
               <div>

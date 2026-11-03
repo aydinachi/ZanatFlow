@@ -20,6 +20,7 @@ import {
   Sparkles,
   Compass,
   ArrowRight,
+  RotateCcw,
 } from 'lucide-react';
 import { useData } from '../../context/DataContext';
 import { Lead, LeadStatus, LeadSource, Priority } from '../../types';
@@ -46,7 +47,7 @@ export const LeadsView: React.FC<LeadsViewProps> = ({
   onOpenImportCSV,
   onNavigateToResearch,
 }) => {
-  const { leads, updateLeadStatus, convertLeadToClient, exportDataToCSV } = useData();
+  const { leads, updateLeadStatus, convertLeadToClient, exportDataToCSV, restoreLeadBackup } = useData();
 
   const [viewMode, setViewMode] = useState<'kanban' | 'table'>('kanban');
   const [searchQuery, setSearchQuery] = useState('');
@@ -153,6 +154,14 @@ export const LeadsView: React.FC<LeadsViewProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
+          <button
+            onClick={restoreLeadBackup}
+            title="Povrati sve prethodno sačuvane leadove u vašu bazu"
+            className="px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl shadow-xs transition-all flex items-center gap-1.5"
+          >
+            <RotateCcw className="w-3.5 h-3.5 text-amber-500" />
+            <span className="hidden sm:inline">Povrati sačuvano</span>
+          </button>
           <button
             onClick={onOpenImportCSV}
             className="px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl shadow-xs transition-all flex items-center gap-1.5"

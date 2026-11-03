@@ -58,6 +58,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   const tabTitles: Record<ActiveTab, string> = {
     dashboard: 'Kontrolna ploča',
+    agent: 'AI Sales Agent (Prodajni Asistent)',
     finder: 'Finder klijenata (Google Maps Lead Finder)',
     research: 'Istraživanje i Baza novih firmi',
     leads: 'Potencijalni klijenti (Prodajni lijevak)',

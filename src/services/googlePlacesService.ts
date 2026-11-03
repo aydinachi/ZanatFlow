@@ -96,16 +96,41 @@ export function analyzePlaceWebPresence(place: {
     scoreCategory = 'Nizak prioritet';
   }
 
-  // Preporučena usluga na osnovu analize
+  // Preporučena usluga na osnovu analize i specifične kategorije
   let recommendedService = 'Izrada moderne web stranice';
+
+  const catLower = (place.category || '').toLowerCase();
+  
   if (webStatus === 'NO_WEBSITE') {
-    recommendedService = 'Izrada potpuno nove responsive web stranice & Google SEO';
+    if (catLower.includes('auto ško') || catLower.includes('autosko')) {
+      recommendedService = 'Izrada moderne web stranice sa formom za online prijavu kandidata i materijalima za obuku';
+    } else if (catLower.includes('advokat') || catLower.includes('pravn')) {
+      recommendedService = 'Profesionalna prezentacijska web stranica sa prikazom pravnih oblasti i online zakazivanjem';
+    } else if (catLower.includes('knjigovod') || catLower.includes('računovo')) {
+      recommendedService = 'B2B web stranica sa prikazom pretplatničkih paketa usluga i upitnikom za nove klijente';
+    } else if (catLower.includes('rent-a-car') || catLower.includes('rent a car')) {
+      recommendedService = 'Web stranica sa sistemom za direktnu rezervaciju vozila, cjenovnikom i prikazom voznog parka';
+    } else if (catLower.includes('sale za vjenč') || catLower.includes('event')) {
+      recommendedService = 'Atraktivna landing stranica sa galerijom prostora, provjerom slobodnih termina i virtuelnom turom';
+    } else if (catLower.includes('stolar') || catLower.includes('namještaj')) {
+      recommendedService = 'Web katalog radova (kuhinje, ormari) sa formom za besplatan proračun ponude';
+    } else if (catLower.includes('šlep') || catLower.includes('vučn')) {
+      recommendedService = 'Ultra-brza mobilna web stranica sa SOS dugmetom za poziv 1-klikom i GPS lokacijom';
+    } else if (catLower.includes('fizikaln') || catLower.includes('fizioterap')) {
+      recommendedService = 'Web sajt sa zakazivanjem tretmana, biografijama terapeuta i cjenovnikom usluga';
+    } else if (catLower.includes('fotograf') || catLower.includes('video')) {
+      recommendedService = 'Vizuelno impresivan portfolio sa galerijama visoke rezolucije i paketima za proslave';
+    } else if (catLower.includes('čisti') || catLower.includes('održavanj')) {
+      recommendedService = 'Kalkulator cijena čišćenja, kalkulacija kvadrature i besplatan zahtjev za ponudu';
+    } else {
+      recommendedService = 'Izrada potpuno nove responsive web stranice & Google SEO optimizacija';
+    }
   } else if (webStatus === 'BROKEN_WEBSITE') {
-    recommendedService = 'Obnova pokvarene domene i izrada novog web sajta';
+    recommendedService = 'Obnova pokvarene domene, sanacija web sajta i modernizacija hostinga';
   } else if (webStatus === 'NEEDS_RECONSTRUCTION') {
-    recommendedService = 'Redizajn postojeće stranice, UX/UI optimizacija i mobilna responzivnost';
+    recommendedService = 'Redizajn postojeće stranice, UX/UI optimizacija, brzina i mobilna responzivnost';
   } else {
-    recommendedService = 'Izrada landing stranice / Prilagođena web aplikacija i CRM automatizacija';
+    recommendedService = 'Izrada moderne landing stranice / Prilagođena web aplikacija i CRM automatizacija';
   }
 
   return {
@@ -154,13 +179,14 @@ export interface SearchParams {
   queryText?: string;
   minRating?: number;
   minReviews?: number;
+  apiKey?: string;
 }
 
 /**
  * Poziv novog Google Places API (New) preko HTTP REST pretrazivanja (v1/places:searchText)
  */
 async function fetchPlacesNewApi(params: SearchParams): Promise<GoogleMapsPlace[] | null> {
-  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
+  const apiKey = params.apiKey?.trim() || import.meta.env.VITE_GOOGLE_MAPS_API_KEY || (typeof localStorage !== 'undefined' ? localStorage.getItem('zanatflow_custom_google_maps_api_key') || '' : '');
   if (!apiKey) return null;
 
   const city = params.city.trim() || 'Sarajevo';
@@ -398,6 +424,20 @@ function generateRealPlaceDataForQuery(params: SearchParams): GoogleMapsPlace[] 
     'Hoteli i apartmani': ['Hotel Central', 'Villa Sunce Apartmani', 'Guesthouse River', 'Hotel Elegance & Spa', 'Apartmani Stari Grad'],
     'Kozmetički saloni': ['Beauty Center Glow', 'Kozmetički Salon Lotus', 'Studio Queen Nails & Skin', 'Spa & Beauty Oasis'],
     'Vodoinstalateri': ['Vodoinstalacije Hitne Intervencije', 'Vodovod & Grijanje Hodžić', 'Instalacije Cijev-Mont', 'Vodoinstalater Master'],
+    'Auto škole': ['Auto Škola Signal', 'Auto Škola Formula', 'Auto Škola Master Drive', 'Auto Škola As', 'Auto Škola Krajina Pro'],
+    'Advokatske kancelarije': ['Advokatski Ured Horvat & Partneri', 'Advokat Amir Hodžić', 'Pravni Savjetnik & Advokatović', 'Advokatska Kancelarija Legalis', 'Pravna Agencija Lex'],
+    'Knjigovodstveni servisi': ['Knjigovodstvo & Bilans Pro', 'Finansijski Servis Kontos', 'Knjigovodstvena Agencija Kapital', 'Audit & Računovodstvo Džafić', 'Knjigovodstveni Biro Faktura'],
+    'Fizioterapija & Privatne ordinacije': ['Fizioterapija & Rehabilitacija Vitalis', 'Fizio Centar Pokret', 'Poliklinika Zdravlje & Fizio', 'Kineziterapijski Studio Active', 'Fizio Rehabilitacija FitBody'],
+    'Stolarija & Namještaj po mjeri': ['Stolarija Po Mjeri Hrast', 'Namještaj & Enterijeri WoodArt', 'Kuhinje & Ormari Design', 'Stolarska Radionica MasterWood', 'Enterijer Stolarija Pro'],
+    'Rent-a-Car agencije': ['Rent-a-Car Express', 'Auto Rent Premium', 'Drive & Go Iznajmljivanje Vozila', 'City Car Rental', 'Euro Rent-a-Car Services'],
+    'Fitness centri & Personalni treneri': ['Fitness & Gym Powerhouse', 'CrossFit & Training Box', 'Fitness Club Olimpic', 'Personal Training Studio Fit', 'Gym & Health Club Titan'],
+    'Servisi za čišćenje & Održavanje': ['Servis Za Čišćenje Sjaj Pro', 'Eko Čišćenje & Održavanje', 'Clean & Fresh Objekti', 'Dubinsko Čišćenje Expert', 'Facility Management Blistavo'],
+    'Elektroinstalacije & Solarni sistemi': ['Elektro-Mont & Pametne Kuće', 'Solar Energy & Instalacije', 'Elektrotehnika Volt Pro', 'HVAC & Elektro Servis', 'Eko Solar & Elektro sistem'],
+    'Sale za vjenčanja & Eventi': ['Svadbeni Salon Dijamant', 'Event Hall Crystal', 'Organizacija Vjenčanja Magic Day', 'Svečana Sala & Resort Oaza', 'Grand Event Lounge'],
+    'Fotografi & Videografi': ['Studio Flash Photography', 'Vision Production Weddings', 'Foto & Video Art Studio', 'Lens & Drone Media', 'Cinematic Wedding Studio'],
+    'Škole stranih jezika & Instrukcije': ['Centar Stranih Jezika Lingua', 'Language Academy Accent', 'Škola Jezika Polyglot', 'Edukativni Centar Znanje', 'Smart Learning Academy'],
+    'Veterinarske stanice & Pet Grooming': ['Veterinarska Stanica PetCare', 'VET Ambulanta Dr. Šehić', 'Pet Grooming & Vet Care', 'Veterinarski Centar Fauna', 'Ambulanta Maza & Luno'],
+    'Šlep službe & Asistencija': ['Šlep Služba Asistencija 24/7', 'Auto Pomoć & Transport Express', 'Šlep Služba Brzi Transport', 'SOS Auto Pomoć Na Putu', 'Vučna Služba Pro 24h'],
   };
 
   const generatedPlaces: GoogleMapsPlace[] = [];

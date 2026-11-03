@@ -667,3 +667,214 @@ export const INITIAL_SERVICES: ServiceItem[] = [
     userId: 'demo-user'
   }
 ];
+
+// ==========================================
+// INITIAL AI SALES AGENT SAMPLE DATA
+// ==========================================
+import { SalesMessage, LeadAnalysis, SalesActivity, SalesFollowUp, SalesIntegration } from '../types';
+
+export const INITIAL_SALES_ANALYSES: LeadAnalysis[] = [
+  {
+    id: 'analysis-lead-1',
+    leadId: 'lead-1',
+    companyName: 'Restoran Bašča Baščaršija',
+    website: 'http://restoran-basca-old.ba',
+    webStatus: 'NEEDS_RECONSTRUCTION',
+    leadScore: 85,
+    scoreCategory: 'Vrlo visok potencijal',
+    scoreReasons: [
+      '+40: Web stranica je zastarjela i neprilagođena za mobitele',
+      '+25: Odlična pozicija i recenzije na Google Mapsu (4.6★)',
+      '+20: Nedostaje dvojezični QR meni i online rezervacije'
+    ],
+    summary: 'Tragom visoke ocjene na Google Maps-u, Restoran Bašča privlači turiste i domaće goste, ali gubi rezervacije zbog neupotrebljivog sajta.',
+    onlinePresenceAnalysis: 'Postojeći sajt je kreiran 2015. godine u starom Flash/HTTP formatu, te je nepotpuno responzivan na novijim telefonima.',
+    identifiedProblems: [
+      'Stranica nije prilagođena mobilnim uređajima',
+      'Nema SSL certifikat (HTTP umjesto HTTPS)',
+      'Nedostaje online forma za brzu rezervaciju stola'
+    ],
+    proposedService: 'Redizajn web stranice + QR Meni + Online Rezervacije',
+    offerType: 'Rekonstrukcija web stranice',
+    recommendedChannel: 'email',
+    reasonForInterest: 'Veliki priliv turista koji žele unajmiti sto unaprijed online.',
+    reliability: 'Pouzdan podatak',
+    createdAt: '2026-10-28',
+    updatedAt: '2026-10-28',
+    userId: 'demo-user'
+  },
+  {
+    id: 'analysis-lead-2',
+    leadId: 'lead-2',
+    companyName: 'Stomatološka Poliklinika Smile',
+    website: '',
+    webStatus: 'NO_WEBSITE',
+    leadScore: 92,
+    scoreCategory: 'Vrlo visok potencijal',
+    scoreReasons: [
+      '+40: Kompanija uopšte nema web stranicu',
+      '+30: Visoke ocjene i cijenjena usluga u Mostaru',
+      '+22: Pacijenti traže cjenovnik i profil stomatologa'
+    ],
+    summary: 'Stomatološka ordinacija Smile ima fantastičnu reputaciju, ali nema zvaničnu web lokaciju, oslanjajući se samo na društvene mreže.',
+    onlinePresenceAnalysis: 'Google profil ima visok broj pretraga mjesečno ali vodi samo na broj telefona.',
+    identifiedProblems: [
+      'Nema zvanične web stranice na Google-u',
+      'Pacijenti ne mogu vidjeti cjenovnik stomatoloških usluga',
+      'Nema mogućnosti zakazivanja prvog besplatnog pregleda'
+    ],
+    proposedService: 'Izrada kompletne web stranice + Google profil',
+    offerType: 'Nova web stranica',
+    recommendedChannel: 'email',
+    reasonForInterest: 'Privlačenje pacijenata iz cijele hercegovačke regije i dijaspore.',
+    reliability: 'Pouzdan podatak',
+    createdAt: '2026-10-30',
+    updatedAt: '2026-10-30',
+    userId: 'demo-user'
+  }
+];
+
+export const INITIAL_SALES_MESSAGES: SalesMessage[] = [
+  {
+    id: 'msg-1',
+    leadId: 'lead-1',
+    companyName: 'Restoran Bašča Baščaršija',
+    contactName: 'Mirza Smajić',
+    recipientEmail: 'info@restoranbasca.ba',
+    recipientPhone: '+387 61 234 567',
+    channel: 'email',
+    offerType: 'Rekonstrukcija web stranice',
+    proposedService: 'Redizajn web stranice + QR Meni',
+    leadScore: 85,
+    reasonForContact: 'Modernizacija stranice i uvođenje online rezervacija',
+    subject: 'Prijedlog moderne web stranice i QR jelovnika za Restoran Bašča',
+    bodyText: `Poštovani Mirza,
+
+Moje ime je Ajdin Beganović iz studija ZanatFlow. Pratim vaš rad na Baščaršiji i vidim da imate sjajne ocjene gostiju.
+
+Pregledom vašeg profila uočio sam da vaša trenutna web stranica nije prilagođena mobilnim telefonima i nema opciju dvojezičnog QR jelovnika niti online rezervacije stola.
+
+Pripremio sam brz interaktivni demo kako bi nova stranica izgledala na telefonima vaših gostiju.
+
+Jeste li slobodni za kratki 5-minutni poziv ove sedmice?
+
+Srdačan pozdrav,
+Ajdin Beganović
+ZanatFlow Studio
+Tel: +387 61 000 000
+Web: https://zanatflow.ba`,
+    status: 'Pending Approval',
+    language: 'Bosanski',
+    createdAt: '2026-10-28',
+    updatedAt: '2026-10-28',
+    userId: 'demo-user'
+  },
+  {
+    id: 'msg-2',
+    leadId: 'lead-2',
+    companyName: 'Stomatološka Poliklinika Smile',
+    contactName: 'dr. Amra Kovačević',
+    recipientEmail: 'amra@smile-poliklinika.ba',
+    recipientPhone: '+387 36 555 123',
+    channel: 'email',
+    offerType: 'Nova web stranica',
+    proposedService: 'Izrada reprezentativne web stranice poliklinike',
+    leadScore: 92,
+    reasonForContact: 'Izrada zvanične web stranice sa cjenovnikom i online zakazivanjem',
+    subject: 'Prijedlog izrade web stranice za Stomatološku Polikliniku Smile',
+    bodyText: `Poštovana dr. Kovačević,
+
+Ja sam Ajdin Beganović, specijalizovani web developer za zdravstvene ustanove.
+
+Prateći rad vaše poliklinike u Mostaru, primijetio sam da nemate zvaničnu web stranicu na Google pretrazi, gdje pacijenti svakodnevno traže cjenovnik i profile vašeg tima.
+
+Možemo izraditi moderan i brz sajt koji će vašim pacijentima omogućiti jednostavan pregled usluga i zakazivanje pregleda.
+
+Bilo bi mi zadovoljstvo poslati vam neobavezujući prijedlog strukture.
+
+Lijep pozdrav,
+Ajdin Beganović
+ZanatFlow Studio`,
+    status: 'Approved',
+    approvedAt: '2026-10-30',
+    approvedBy: 'Ajdin Beganović',
+    language: 'Bosanski',
+    createdAt: '2026-10-30',
+    updatedAt: '2026-10-30',
+    userId: 'demo-user'
+  }
+];
+
+export const INITIAL_SALES_ACTIVITIES: SalesActivity[] = [
+  {
+    id: 'sact-1',
+    leadId: 'lead-1',
+    companyName: 'Restoran Bašča Baščaršija',
+    type: 'Analiza pokrenuta',
+    channel: 'email',
+    description: 'Završena AI analiza kompanije. Izračunat Lead Score: 85/100.',
+    createdAt: '2026-10-28',
+    userId: 'demo-user'
+  },
+  {
+    id: 'sact-2',
+    leadId: 'lead-2',
+    companyName: 'Stomatološka Poliklinika Smile',
+    type: 'Poruka odobrena',
+    channel: 'email',
+    description: 'Prodajna poruka odobrena od strane korisnika u Approval Centeru.',
+    messageId: 'msg-2',
+    createdAt: '2026-10-30',
+    userId: 'demo-user'
+  }
+];
+
+export const INITIAL_SALES_FOLLOWUPS: SalesFollowUp[] = [
+  {
+    id: 'fol-1',
+    leadId: 'lead-1',
+    companyName: 'Restoran Bašča Baščaršija',
+    channel: 'email',
+    lastContactDate: '2026-10-28',
+    nextFollowUpDate: '2026-11-04',
+    status: 'Čeka se odgovor',
+    lastMessageText: 'Prijedlog moderne web stranice i QR jelovnika za Restoran Bašča',
+    suggestedAction: 'Poslati kratki podsjetnik sa ponudom besplatnog demo uzorka.',
+    createdAt: '2026-10-28',
+    updatedAt: '2026-10-28',
+    userId: 'demo-user'
+  },
+  {
+    id: 'fol-2',
+    leadId: 'lead-2',
+    companyName: 'Stomatološka Poliklinika Smile',
+    channel: 'email',
+    lastContactDate: '2026-10-30',
+    nextFollowUpDate: '2026-11-03',
+    status: 'Poruka pripremljena',
+    lastMessageText: 'Prijedlog izrade web stranice za Stomatološku Polikliniku Smile',
+    suggestedAction: 'Pripremiti poziv nakon odobrenja poruke.',
+    createdAt: '2026-10-30',
+    updatedAt: '2026-10-30',
+    userId: 'demo-user'
+  }
+];
+
+export const INITIAL_SALES_INTEGRATIONS: SalesIntegration[] = [
+  {
+    id: 'integ-gmail',
+    channel: 'gmail',
+    isConnected: true,
+    accountEmail: 'aydinachi@gmail.com',
+    updatedAt: '2026-11-01',
+    userId: 'demo-user'
+  },
+  {
+    id: 'integ-whatsapp',
+    channel: 'whatsapp',
+    isConnected: false,
+    updatedAt: '2026-11-01',
+    userId: 'demo-user'
+  }
+];
+

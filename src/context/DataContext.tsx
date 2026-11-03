@@ -9,6 +9,13 @@ import {
   ServiceItem,
   LeadStatus,
   UserSettings,
+  SalesAgentSettings,
+  LeadAnalysis,
+  SalesMessage,
+  SalesActivity,
+  SalesFollowUp,
+  SalesIntegration,
+  SalesMessageStatus,
 } from '../types';
 import {
   INITIAL_LEADS,
@@ -18,7 +25,13 @@ import {
   INITIAL_ACTIVITIES,
   INITIAL_FINANCES,
   INITIAL_SERVICES,
+  INITIAL_SALES_ANALYSES,
+  INITIAL_SALES_MESSAGES,
+  INITIAL_SALES_ACTIVITIES,
+  INITIAL_SALES_FOLLOWUPS,
+  INITIAL_SALES_INTEGRATIONS,
 } from '../services/mockData';
+import { DEFAULT_SALES_SETTINGS } from '../services/salesAgentService';
 import { auth, db, loginWithGoogle, loginWithEmail, registerWithEmail, logoutUser } from '../services/firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import {
@@ -55,6 +68,14 @@ interface DataContextType {
   finances: Finance[];
   services: ServiceItem[];
   userSettings: UserSettings;
+
+  // AI Sales Agent Collections
+  salesSettings: SalesAgentSettings;
+  leadAnalyses: LeadAnalysis[];
+  salesMessages: SalesMessage[];
+  salesActivities: SalesActivity[];
+  salesFollowUps: SalesFollowUp[];
+  salesIntegrations: SalesIntegration[];
 
   // Actions - Leads
   addLead: (lead: Omit<Lead, 'id' | 'createdAt' | 'updatedAt' | 'userId'>) => Promise<string>;
@@ -94,8 +115,23 @@ interface DataContextType {
   updateService: (id: string, updates: Partial<ServiceItem>) => Promise<void>;
   deleteService: (id: string) => Promise<void>;
 
+  // Actions - AI Sales Agent
+  updateSalesSettings: (updates: Partial<SalesAgentSettings>) => Promise<void>;
+  saveLeadAnalysis: (analysis: LeadAnalysis) => Promise<void>;
+  saveSalesMessage: (message: SalesMessage) => Promise<void>;
+  updateSalesMessageStatus: (id: string, status: SalesMessageStatus, rejectionReason?: string) => Promise<void>;
+  deleteSalesMessage: (id: string) => Promise<void>;
+  saveSalesActivity: (activity: Omit<SalesActivity, 'id' | 'createdAt' | 'userId'>) => Promise<string>;
+  saveSalesFollowUp: (followUp: Omit<SalesFollowUp, 'id' | 'createdAt' | 'updatedAt' | 'userId'>) => Promise<string>;
+  updateSalesIntegration: (
+    channel: 'gmail' | 'whatsapp',
+    isConnected: boolean,
+    details?: string | Partial<Omit<SalesIntegration, 'id' | 'channel' | 'userId' | 'updatedAt'>>
+  ) => Promise<void>;
+
   // System & Sample Data
   resetToSampleData: () => void;
+  restoreLeadBackup: () => void;
   seedSampleDataToFirestore: () => Promise<void>;
   exportDataToCSV: (entityName: 'leads' | 'clients' | 'projects' | 'finances') => void;
 }
@@ -111,6 +147,22 @@ const LOCAL_STORAGE_KEY_FINANCES = 'fbm_finances_v1';
 const LOCAL_STORAGE_KEY_SERVICES = 'fbm_services_v1';
 const LOCAL_STORAGE_KEY_THEME = 'fbm_theme_v1';
 
+export function sanitizeFirestoreData<T extends Record<string, any>>(obj: T): T {
+  if (obj === null || typeof obj !== 'object') return obj;
+  const result: Record<string, any> = {};
+  for (const key of Object.keys(obj)) {
+    const val = obj[key];
+    if (val !== undefined) {
+      if (val !== null && typeof val === 'object' && !Array.isArray(val) && !(val instanceof Date)) {
+        result[key] = sanitizeFirestoreData(val);
+      } else {
+        result[key] = val;
+      }
+    }
+  }
+  return result as T;
+}
+
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isDemoMode, setIsDemoMode] = useState<boolean>(true);
@@ -119,6 +171,15 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Local state initialized with Mock Data or LocalStorage
   const [leads, setLeads] = useState<Lead[]>(() => {
+    const backup = localStorage.getItem('zanatflow_user_leads_backup');
+    if (backup) {
+      try {
+        const parsed = JSON.parse(backup);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      } catch (e) {
+        console.error('Greška pri čitanju backup leadova:', e);
+      }
+    }
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY_LEADS);
     return saved ? JSON.parse(saved) : INITIAL_LEADS;
   });
@@ -151,6 +212,37 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [services, setServices] = useState<ServiceItem[]>(() => {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY_SERVICES);
     return saved ? JSON.parse(saved) : INITIAL_SERVICES;
+  });
+
+  // AI Sales Agent States
+  const [salesSettings, setSalesSettings] = useState<SalesAgentSettings>(() => {
+    const saved = localStorage.getItem('fbm_sales_settings_v1');
+    return saved ? JSON.parse(saved) : DEFAULT_SALES_SETTINGS;
+  });
+
+  const [leadAnalyses, setLeadAnalyses] = useState<LeadAnalysis[]>(() => {
+    const saved = localStorage.getItem('fbm_lead_analyses_v1');
+    return saved ? JSON.parse(saved) : INITIAL_SALES_ANALYSES;
+  });
+
+  const [salesMessages, setSalesMessages] = useState<SalesMessage[]>(() => {
+    const saved = localStorage.getItem('fbm_sales_messages_v1');
+    return saved ? JSON.parse(saved) : INITIAL_SALES_MESSAGES;
+  });
+
+  const [salesActivities, setSalesActivities] = useState<SalesActivity[]>(() => {
+    const saved = localStorage.getItem('fbm_sales_activities_v1');
+    return saved ? JSON.parse(saved) : INITIAL_SALES_ACTIVITIES;
+  });
+
+  const [salesFollowUps, setSalesFollowUps] = useState<SalesFollowUp[]>(() => {
+    const saved = localStorage.getItem('fbm_sales_followups_v1');
+    return saved ? JSON.parse(saved) : INITIAL_SALES_FOLLOWUPS;
+  });
+
+  const [salesIntegrations, setSalesIntegrations] = useState<SalesIntegration[]>(() => {
+    const saved = localStorage.getItem('fbm_sales_integrations_v1');
+    return saved ? JSON.parse(saved) : INITIAL_SALES_INTEGRATIONS;
   });
 
   const [userSettings] = useState<UserSettings>({
@@ -197,8 +289,30 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem(LOCAL_STORAGE_KEY_ACTIVITIES, JSON.stringify(activities));
       localStorage.setItem(LOCAL_STORAGE_KEY_FINANCES, JSON.stringify(finances));
       localStorage.setItem(LOCAL_STORAGE_KEY_SERVICES, JSON.stringify(services));
+
+      localStorage.setItem('fbm_sales_settings_v1', JSON.stringify(salesSettings));
+      localStorage.setItem('fbm_lead_analyses_v1', JSON.stringify(leadAnalyses));
+      localStorage.setItem('fbm_sales_messages_v1', JSON.stringify(salesMessages));
+      localStorage.setItem('fbm_sales_activities_v1', JSON.stringify(salesActivities));
+      localStorage.setItem('fbm_sales_followups_v1', JSON.stringify(salesFollowUps));
+      localStorage.setItem('fbm_sales_integrations_v1', JSON.stringify(salesIntegrations));
     }
-  }, [leads, clients, projects, tasks, activities, finances, services, isDemoMode]);
+  }, [
+    leads,
+    clients,
+    projects,
+    tasks,
+    activities,
+    finances,
+    services,
+    salesSettings,
+    leadAnalyses,
+    salesMessages,
+    salesActivities,
+    salesFollowUps,
+    salesIntegrations,
+    isDemoMode,
+  ]);
 
   // Firebase Auth & Firestore Listeners
   useEffect(() => {
@@ -221,7 +335,24 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const unsubs = [
       onSnapshot(query(collection(db, 'leads'), where('userId', '==', userId)), (snapshot) => {
         const docs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Lead));
-        setLeads(docs);
+        setLeads((prevLocal) => {
+          const docMap = new Map(docs.map((d) => [d.id, d]));
+          // Retain local unsynced leads so they are not wiped out
+          for (const localLead of prevLocal) {
+            if (!docMap.has(localLead.id)) {
+              const updatedLead = { ...localLead, userId };
+              docMap.set(localLead.id, updatedLead);
+              // Auto-sync unsynced local lead to Firestore
+              setDoc(doc(db, 'leads', localLead.id), updatedLead).catch((err) =>
+                console.warn('Greška pri automatskoj sinhronizaciji lokalnog leada u Firestore:', err)
+              );
+            }
+          }
+          const merged = Array.from(docMap.values());
+          localStorage.setItem(LOCAL_STORAGE_KEY_LEADS, JSON.stringify(merged));
+          localStorage.setItem('zanatflow_user_leads_backup', JSON.stringify(merged));
+          return merged;
+        });
       }),
       onSnapshot(query(collection(db, 'clients'), where('userId', '==', userId)), (snapshot) => {
         const docs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Client));
@@ -246,6 +377,34 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       onSnapshot(query(collection(db, 'services'), where('userId', '==', userId)), (snapshot) => {
         const docs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as ServiceItem));
         setServices(docs);
+      }),
+
+      // AI Sales Agent Snapshots
+      onSnapshot(query(collection(db, 'salesAgentSettings'), where('userId', '==', userId)), (snapshot) => {
+        if (!snapshot.empty) {
+          const docData = snapshot.docs[0].data() as SalesAgentSettings;
+          setSalesSettings({ ...docData, id: snapshot.docs[0].id });
+        }
+      }),
+      onSnapshot(query(collection(db, 'leadAnalyses'), where('userId', '==', userId)), (snapshot) => {
+        const docs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as LeadAnalysis));
+        setLeadAnalyses(docs);
+      }),
+      onSnapshot(query(collection(db, 'salesMessages'), where('userId', '==', userId)), (snapshot) => {
+        const docs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as SalesMessage));
+        setSalesMessages(docs);
+      }),
+      onSnapshot(query(collection(db, 'salesActivities'), where('userId', '==', userId)), (snapshot) => {
+        const docs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as SalesActivity));
+        setSalesActivities(docs);
+      }),
+      onSnapshot(query(collection(db, 'salesFollowUps'), where('userId', '==', userId)), (snapshot) => {
+        const docs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as SalesFollowUp));
+        setSalesFollowUps(docs);
+      }),
+      onSnapshot(query(collection(db, 'salesIntegrations'), where('userId', '==', userId)), (snapshot) => {
+        const docs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as SalesIntegration));
+        setSalesIntegrations(docs);
       }),
     ];
 
@@ -311,10 +470,20 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       userId: currentUserId,
     };
 
+    // Optimistically update local state immediately and backup
+    setLeads((prev) => {
+      const updated = [newLead, ...prev.filter((l) => l.id !== id)];
+      localStorage.setItem(LOCAL_STORAGE_KEY_LEADS, JSON.stringify(updated));
+      localStorage.setItem('zanatflow_user_leads_backup', JSON.stringify(updated));
+      return updated;
+    });
+
     if (user && !isDemoMode) {
-      await setDoc(doc(db, 'leads', id), newLead);
-    } else {
-      setLeads((prev) => [newLead, ...prev]);
+      try {
+        await setDoc(doc(db, 'leads', id), sanitizeFirestoreData(newLead));
+      } catch (e) {
+        console.warn('Greška pri spremanju leada u Firestore, sačuvano lokalno:', e);
+      }
     }
 
     // Add activity automatically
@@ -332,10 +501,19 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateLead = async (id: string, updates: Partial<Lead>) => {
     const updatedAt = nowIso;
+    setLeads((prev) => {
+      const updated = prev.map((item) => (item.id === id ? { ...item, ...updates, updatedAt } : item));
+      localStorage.setItem(LOCAL_STORAGE_KEY_LEADS, JSON.stringify(updated));
+      localStorage.setItem('zanatflow_user_leads_backup', JSON.stringify(updated));
+      return updated;
+    });
+
     if (user && !isDemoMode) {
-      await updateDoc(doc(db, 'leads', id), { ...updates, updatedAt });
-    } else {
-      setLeads((prev) => prev.map((item) => (item.id === id ? { ...item, ...updates, updatedAt } : item)));
+      try {
+        await updateDoc(doc(db, 'leads', id), sanitizeFirestoreData({ ...updates, updatedAt }));
+      } catch (e) {
+        console.warn('Greška pri ažuriranju u Firestore:', e);
+      }
     }
   };
 
@@ -355,10 +533,19 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deleteLead = async (id: string) => {
+    setLeads((prev) => {
+      const updated = prev.filter((item) => item.id !== id);
+      localStorage.setItem(LOCAL_STORAGE_KEY_LEADS, JSON.stringify(updated));
+      localStorage.setItem('zanatflow_user_leads_backup', JSON.stringify(updated));
+      return updated;
+    });
+
     if (user && !isDemoMode) {
-      await deleteDoc(doc(db, 'leads', id));
-    } else {
-      setLeads((prev) => prev.filter((item) => item.id !== id));
+      try {
+        await deleteDoc(doc(db, 'leads', id));
+      } catch (e) {
+        console.warn('Greška pri brisanju u Firestore:', e);
+      }
     }
   };
 
@@ -388,8 +575,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     if (user && !isDemoMode) {
-      await setDoc(doc(db, 'clients', clientId), newClient);
-      await updateDoc(doc(db, 'leads', leadId), { status: 'Dobijen posao', updatedAt: nowIso });
+      await setDoc(doc(db, 'clients', clientId), sanitizeFirestoreData(newClient));
+      await updateDoc(doc(db, 'leads', leadId), sanitizeFirestoreData({ status: 'Dobijen posao', updatedAt: nowIso }));
     } else {
       setClients((prev) => [newClient, ...prev]);
       setLeads((prev) =>
@@ -680,6 +867,202 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // AI SALES AGENT ACTIONS
+  const updateSalesSettings = async (updates: Partial<SalesAgentSettings>) => {
+    const updatedAt = nowIso;
+    const newSettings = { ...salesSettings, ...updates, updatedAt };
+    setSalesSettings(newSettings);
+
+    if (user && !isDemoMode) {
+      await setDoc(
+        doc(db, 'salesAgentSettings', salesSettings.id || 'default'),
+        sanitizeFirestoreData({
+          ...newSettings,
+          userId: currentUserId,
+        })
+      );
+    }
+  };
+
+  const saveLeadAnalysis = async (analysis: LeadAnalysis) => {
+    if (user && !isDemoMode) {
+      await setDoc(
+        doc(db, 'leadAnalyses', analysis.id),
+        sanitizeFirestoreData({ ...analysis, userId: currentUserId })
+      );
+    } else {
+      setLeadAnalyses((prev) => [analysis, ...prev.filter((a) => a.leadId !== analysis.leadId)]);
+    }
+
+    // Update lead leadScore in lead document as well
+    await updateLead(analysis.leadId, {
+      leadScore: analysis.leadScore,
+      serviceType: analysis.proposedService,
+    });
+  };
+
+  const saveSalesMessage = async (message: SalesMessage) => {
+    if (user && !isDemoMode) {
+      await setDoc(
+        doc(db, 'salesMessages', message.id),
+        sanitizeFirestoreData({ ...message, userId: currentUserId })
+      );
+    } else {
+      setSalesMessages((prev) => [message, ...prev.filter((m) => m.id !== message.id)]);
+    }
+
+    // Log Activity
+    await saveSalesActivity({
+      leadId: message.leadId,
+      companyName: message.companyName,
+      type: 'Poruka generisana',
+      channel: message.channel,
+      description: `Pripremljena poruka za ${message.companyName} (${message.channel.toUpperCase()}) u statusu "${message.status}".`,
+      messageId: message.id,
+    });
+  };
+
+  const updateSalesMessageStatus = async (id: string, status: SalesMessageStatus, rejectionReason?: string) => {
+    const updatedAt = nowIso;
+    const msg = salesMessages.find((m) => m.id === id);
+    if (!msg) return;
+
+    const updates: Partial<SalesMessage> = {
+      status,
+      updatedAt,
+    };
+
+    if (rejectionReason !== undefined && rejectionReason !== '') {
+      updates.rejectionReason = rejectionReason;
+    } else if (msg.rejectionReason) {
+      updates.rejectionReason = msg.rejectionReason;
+    }
+
+    if (status === 'Approved') {
+      updates.approvedAt = updatedAt;
+      updates.approvedBy = user?.displayName || salesSettings.fullName || 'Korisnik';
+    } else if (status === 'Sent') {
+      updates.sentAt = updatedAt;
+    }
+
+    if (user && !isDemoMode) {
+      await updateDoc(doc(db, 'salesMessages', id), sanitizeFirestoreData(updates));
+    } else {
+      setSalesMessages((prev) => prev.map((m) => (m.id === id ? { ...m, ...updates } : m)));
+    }
+
+    // Log Sales Activity
+    let actType: any = 'Poruka odobrena';
+    if (status === 'Approved') actType = 'Poruka odobrena';
+    else if (status === 'Rejected') actType = 'Poruka odbijena';
+    else if (status === 'Sent') actType = 'Poruka poslana';
+
+    await saveSalesActivity({
+      leadId: msg.leadId,
+      companyName: msg.companyName,
+      type: actType,
+      channel: msg.channel,
+      description: `Status poruke promijenjen u "${status}"${rejectionReason ? `: ${rejectionReason}` : ''}.`,
+      messageId: id,
+    });
+
+    // If message is Sent, update Lead status & lastContactDate
+    if (status === 'Sent') {
+      await updateLead(msg.leadId, {
+        status: 'Poruka poslana',
+        lastContactDate: nowIso,
+      });
+
+      // Also create or update FollowUp entry
+      await saveSalesFollowUp({
+        leadId: msg.leadId,
+        companyName: msg.companyName,
+        channel: msg.channel,
+        lastContactDate: nowIso,
+        nextFollowUpDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        status: 'Poruka poslana',
+        lastMessageText: msg.bodyText,
+        suggestedAction: 'Sačekati odgovor 5 dana, pa pripremiti follow-up podsjetnik.',
+      });
+    }
+  };
+
+  const deleteSalesMessage = async (id: string) => {
+    if (user && !isDemoMode) {
+      await deleteDoc(doc(db, 'salesMessages', id));
+    } else {
+      setSalesMessages((prev) => prev.filter((m) => m.id !== id));
+    }
+  };
+
+  const saveSalesActivity = async (activity: Omit<SalesActivity, 'id' | 'createdAt' | 'userId'>): Promise<string> => {
+    const id = genId('sact');
+    const newAct: SalesActivity = {
+      ...activity,
+      id,
+      createdAt: nowIso,
+      userId: currentUserId,
+    };
+
+    if (user && !isDemoMode) {
+      await setDoc(doc(db, 'salesActivities', id), sanitizeFirestoreData(newAct));
+    } else {
+      setSalesActivities((prev) => [newAct, ...prev]);
+    }
+
+    return id;
+  };
+
+  const saveSalesFollowUp = async (followUp: Omit<SalesFollowUp, 'id' | 'createdAt' | 'updatedAt' | 'userId'>): Promise<string> => {
+    const existing = salesFollowUps.find((f) => f.leadId === followUp.leadId);
+    const id = existing ? existing.id : genId('fol');
+
+    const newFol: SalesFollowUp = {
+      ...followUp,
+      id,
+      createdAt: existing ? existing.createdAt : nowIso,
+      updatedAt: nowIso,
+      userId: currentUserId,
+    };
+
+    if (user && !isDemoMode) {
+      await setDoc(doc(db, 'salesFollowUps', id), sanitizeFirestoreData(newFol));
+    } else {
+      setSalesFollowUps((prev) => [newFol, ...prev.filter((f) => f.leadId !== followUp.leadId)]);
+    }
+
+    return id;
+  };
+
+  const updateSalesIntegration = async (
+    channel: 'gmail' | 'whatsapp',
+    isConnected: boolean,
+    details?: string | Partial<Omit<SalesIntegration, 'id' | 'channel' | 'userId' | 'updatedAt'>>
+  ) => {
+    const existing = salesIntegrations.find((i) => i.channel === channel);
+    const id = existing ? existing.id : `integ-${channel}`;
+
+    const detailObj = typeof details === 'string'
+      ? (channel === 'gmail' ? { accountEmail: details } : { phoneNumberId: details })
+      : (details || {});
+
+    const newInteg: SalesIntegration = {
+      ...existing,
+      ...detailObj,
+      id,
+      channel,
+      isConnected,
+      updatedAt: nowIso,
+      userId: currentUserId,
+    };
+
+    if (user && !isDemoMode) {
+      await setDoc(doc(db, 'salesIntegrations', id), sanitizeFirestoreData(newInteg));
+    } else {
+      setSalesIntegrations((prev) => [newInteg, ...prev.filter((i) => i.channel !== channel)]);
+    }
+  };
+
   // RESET SAMPLE DATA
   const resetToSampleData = () => {
     setLeads(INITIAL_LEADS);
@@ -689,6 +1072,12 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setActivities(INITIAL_ACTIVITIES);
     setFinances(INITIAL_FINANCES);
     setServices(INITIAL_SERVICES);
+    setSalesSettings(DEFAULT_SALES_SETTINGS);
+    setLeadAnalyses(INITIAL_SALES_ANALYSES);
+    setSalesMessages(INITIAL_SALES_MESSAGES);
+    setSalesActivities(INITIAL_SALES_ACTIVITIES);
+    setSalesFollowUps(INITIAL_SALES_FOLLOWUPS);
+    setSalesIntegrations(INITIAL_SALES_INTEGRATIONS);
 
     localStorage.setItem(LOCAL_STORAGE_KEY_LEADS, JSON.stringify(INITIAL_LEADS));
     localStorage.setItem(LOCAL_STORAGE_KEY_CLIENTS, JSON.stringify(INITIAL_CLIENTS));
@@ -697,6 +1086,32 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem(LOCAL_STORAGE_KEY_ACTIVITIES, JSON.stringify(INITIAL_ACTIVITIES));
     localStorage.setItem(LOCAL_STORAGE_KEY_FINANCES, JSON.stringify(INITIAL_FINANCES));
     localStorage.setItem(LOCAL_STORAGE_KEY_SERVICES, JSON.stringify(INITIAL_SERVICES));
+    localStorage.setItem('fbm_sales_settings_v1', JSON.stringify(DEFAULT_SALES_SETTINGS));
+    localStorage.setItem('fbm_lead_analyses_v1', JSON.stringify(INITIAL_SALES_ANALYSES));
+    localStorage.setItem('fbm_sales_messages_v1', JSON.stringify(INITIAL_SALES_MESSAGES));
+    localStorage.setItem('fbm_sales_activities_v1', JSON.stringify(INITIAL_SALES_ACTIVITIES));
+    localStorage.setItem('fbm_sales_followups_v1', JSON.stringify(INITIAL_SALES_FOLLOWUPS));
+  };
+
+  const restoreLeadBackup = () => {
+    const backup = localStorage.getItem('zanatflow_user_leads_backup') || localStorage.getItem(LOCAL_STORAGE_KEY_LEADS);
+    if (backup) {
+      try {
+        const parsed = JSON.parse(backup);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setLeads((prev) => {
+            const map = new Map(parsed.map((l: Lead) => [l.id, l]));
+            prev.forEach((l) => map.set(l.id, l));
+            const merged = Array.from(map.values());
+            localStorage.setItem(LOCAL_STORAGE_KEY_LEADS, JSON.stringify(merged));
+            localStorage.setItem('zanatflow_user_leads_backup', JSON.stringify(merged));
+            return merged;
+          });
+        }
+      } catch (e) {
+        console.error('Greška pri povratu backup leadova:', e);
+      }
+    }
   };
 
   // EXPORT CSV
@@ -800,6 +1215,22 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     for (const item of INITIAL_SERVICES) {
       await setDoc(doc(db, 'services', item.id), { ...item, userId });
     }
+    for (const item of INITIAL_SALES_ANALYSES) {
+      await setDoc(doc(db, 'leadAnalyses', item.id), { ...item, userId });
+    }
+    for (const item of INITIAL_SALES_MESSAGES) {
+      await setDoc(doc(db, 'salesMessages', item.id), { ...item, userId });
+    }
+    for (const item of INITIAL_SALES_ACTIVITIES) {
+      await setDoc(doc(db, 'salesActivities', item.id), { ...item, userId });
+    }
+    for (const item of INITIAL_SALES_FOLLOWUPS) {
+      await setDoc(doc(db, 'salesFollowUps', item.id), { ...item, userId });
+    }
+    for (const item of INITIAL_SALES_INTEGRATIONS) {
+      await setDoc(doc(db, 'salesIntegrations', item.id), { ...item, userId });
+    }
+    await setDoc(doc(db, 'salesAgentSettings', DEFAULT_SALES_SETTINGS.id), { ...DEFAULT_SALES_SETTINGS, userId });
   };
 
   return (
@@ -824,6 +1255,12 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         finances,
         services,
         userSettings,
+        salesSettings,
+        leadAnalyses,
+        salesMessages,
+        salesActivities,
+        salesFollowUps,
+        salesIntegrations,
         addLead,
         updateLead,
         updateLeadStatus,
@@ -848,7 +1285,16 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         addService,
         updateService,
         deleteService,
+        updateSalesSettings,
+        saveLeadAnalysis,
+        saveSalesMessage,
+        updateSalesMessageStatus,
+        deleteSalesMessage,
+        saveSalesActivity,
+        saveSalesFollowUp,
+        updateSalesIntegration,
         resetToSampleData,
+        restoreLeadBackup,
         seedSampleDataToFirestore,
         exportDataToCSV,
       }}

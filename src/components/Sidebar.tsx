@@ -23,6 +23,7 @@ import { useData } from '../context/DataContext';
 
 export type ActiveTab =
   | 'dashboard'
+  | 'agent'
   | 'finder'
   | 'research'
   | 'leads'
@@ -54,7 +55,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   mobileMenuOpen = false,
   setMobileMenuOpen,
 }) => {
-  const { user, isDemoMode, loginGoogle, logout, leads } = useData();
+  const { user, isDemoMode, loginGoogle, logout, leads, salesMessages } = useData();
 
   // Count leads in research database vs active pipeline follow-ups
   const researchLeadsCount = leads.filter(
@@ -65,8 +66,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
     (l) => l.status === 'Potrebno ponovno javljanje' || l.status === 'Ponuda poslana'
   ).length;
 
+  const pendingApprovalCount = salesMessages.filter(
+    (m) => m.status === 'Pending Approval'
+  ).length;
+
   const navItems = [
     { id: 'dashboard', label: 'Kontrolna ploča', icon: LayoutDashboard },
+    { id: 'agent', label: 'AI Sales Agent', icon: Zap, badge: pendingApprovalCount },
     { id: 'finder', label: 'Finder klijenata (Maps)', icon: MapPin },
     { id: 'research', label: 'Istraživanje (Novi)', icon: Sparkles, badge: researchLeadsCount },
     { id: 'leads', label: 'Potencijalni klijenti', icon: Target, badge: followUpLeadsCount },

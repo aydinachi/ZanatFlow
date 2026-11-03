@@ -28,6 +28,15 @@ import {
   X,
   History,
   ShieldAlert,
+  Utensils,
+  HeartPulse,
+  Car,
+  Hammer,
+  Briefcase,
+  HelpCircle,
+  Lightbulb,
+  CheckSquare,
+  Square,
 } from 'lucide-react';
 import { APIProvider, Map, AdvancedMarker, Pin, InfoWindow } from '@vis.gl/react-google-maps';
 import { GoogleMapsPlace, SavedSearchQuery } from '../../types';
@@ -48,16 +57,81 @@ const PRESET_CITIES = [
   'Beč',
 ];
 
-const PRESET_CATEGORIES = [
-  'Restorani',
-  'Frizerski saloni',
-  'Autoservisi',
-  'Stomatološke ordinacije',
-  'Građevinske firme',
-  'Hoteli i apartmani',
-  'Kozmetički saloni',
-  'Vodoinstalateri',
+export interface CategoryItem {
+  name: string;
+  reason: string;
+  badge: string;
+}
+
+export interface CategoryGroup {
+  id: string;
+  name: string;
+  iconName: string;
+  categories: CategoryItem[];
+}
+
+export const CATEGORY_GROUPS: CategoryGroup[] = [
+  {
+    id: 'ugostiteljstvo',
+    name: 'Ugostiteljstvo & Turizam',
+    iconName: 'Utensils',
+    categories: [
+      { name: 'Restorani', reason: 'Digitalni QR jelovnik, online rezervacija stola i ponuda hrane za vani', badge: 'Visok odziv' },
+      { name: 'Hoteli i apartmani', reason: 'Direktne rezervacije smještaja bez izdvajanja 15-20% provizije Booking/Airbnb-u', badge: 'Visok budžet' },
+      { name: 'Sale za vjenčanja & Eventi', reason: 'Virtuelna tura prostora, foto galerija proslava i provjera slobodnih datuma', badge: 'Visoka vrijednost' },
+    ],
+  },
+  {
+    id: 'zdravlje',
+    name: 'Zdravlje, Ljepota & Njega',
+    iconName: 'HeartPulse',
+    categories: [
+      { name: 'Stomatološke ordinacije', reason: 'Cjenovnik usluga, zakazivanje pacijenata i privlačenje pacijenata iz dijaspore', badge: 'Preporučeno' },
+      { name: 'Frizerski saloni', reason: 'Barber shopovi i frizerski saloni sa brzim online zakazivanjem termina', badge: 'Lako zatvaranje' },
+      { name: 'Kozmetički saloni', reason: 'Vizuelni portfolio tretmana lica, noktiju, masaža i cjenovnik usluga', badge: 'Velika potražnja' },
+      { name: 'Fizioterapija & Privatne ordinacije', reason: 'Predstavljanje stručnog tima, terapija i forma za naručivanje pregleda', badge: 'Medicinski web' },
+      { name: 'Veterinarske stanice & Pet Grooming', reason: 'Kontakti za hitne slučajeva 24h, cjenovnik vakcinacija i njoge ljubimaca', badge: 'Lokalni SEO' },
+    ],
+  },
+  {
+    id: 'auto',
+    name: 'Auto, Saobraćaj & Transport',
+    iconName: 'Car',
+    categories: [
+      { name: 'Autoservisi', reason: 'Radno vrijeme, autodijagnostika i rezervacija terminskog slota za popravku', badge: 'Često nemaju web' },
+      { name: 'Auto škole', reason: 'Online prijava kandidata za polaganje, raspored časova i ispitni materijali', badge: 'Top prilika' },
+      { name: 'Rent-a-Car agencije', reason: 'Direktni booking sistem vozila sa prikazom voznog parka i dnevnih cijena', badge: 'Visok prihod' },
+      { name: 'Šlep službe & Asistencija', reason: 'Ultra-brza mobilna stranica sa SOS dugmetom 1-klik za poziv na putu 24/7', badge: 'Hitni pozivi' },
+    ],
+  },
+  {
+    id: 'zanatstvo',
+    name: 'Zanatstvo, Dom & Građevina',
+    iconName: 'Hammer',
+    categories: [
+      { name: 'Građevinske firme', reason: 'Prezentacija izgrađenih objekata, arhitektonskih referenci i kontakt za tendere', badge: 'Veliki ugovori' },
+      { name: 'Vodoinstalateri & Grijanje', reason: 'Hitne vodovodne i HVAC intervencije (24/7), toplotne pumpe i cjenovnik radova', badge: 'Hitna potreba' },
+      { name: 'Stolarija & Namještaj po mjeri', reason: 'Interaktivna galerija radova (kuhinje, ormari) i besplatan proračun ponude', badge: 'Visual portfolio' },
+      { name: 'Elektroinstalacije & Solarni sistemi', reason: 'Kalkulator uštede energije, pametne kuće i ponude za solarne panele', badge: 'Trend 2026' },
+      { name: 'Servisi za čišćenje & Održavanje', reason: 'Kalkulator kvadrature i pretplatnički paketi za čišćenje domova i ureda', badge: 'B2B & B2C' },
+    ],
+  },
+  {
+    id: 'profesionalne',
+    name: 'Profesionalne & B2B Usluge',
+    iconName: 'Briefcase',
+    categories: [
+      { name: 'Advokatske kancelarije', reason: 'Predstavljanje pravnih oblasti, ugovora i zakazivanje pravnih konsultacija', badge: 'Prestiž' },
+      { name: 'Knjigovodstveni servisi', reason: 'Privlačenje B2B pretplatničkih klijenata i prikaz paketnih cijena vođenja knjiga', badge: 'Stabilan prihod' },
+      { name: 'Fotografi & Videografi', reason: 'Visokokvalitetni foto/video portfolio, paketi za vjenčanja i bukiranje termina', badge: 'Visual web' },
+      { name: 'Škole stranih jezika & Instrukcije', reason: 'Online prijave na kurseve jezika, raspored časova i besplatno testiranje znanja', badge: 'Edukacija' },
+      { name: 'Fitness centri & Personalni treneri', reason: 'Raspored grupnih treninga, cjenovnik članarina i transformacije klijenata', badge: 'Membership web' },
+    ],
+  },
 ];
+
+export const ALL_PRESET_CATEGORIES = CATEGORY_GROUPS.flatMap((g) => g.categories);
+export const PRESET_CATEGORIES = ALL_PRESET_CATEGORIES.map((c) => c.name);
 
 export const LeadFinderView: React.FC = () => {
   const { leads, addLead } = useData();
@@ -71,6 +145,11 @@ export const LeadFinderView: React.FC = () => {
   const [queryText, setQueryText] = useState('');
   const [minRating, setMinRating] = useState<number>(0);
   const [minReviews, setMinReviews] = useState<number>(0);
+
+  // Napredno upravljanje kategorijama
+  const [activeGroupTab, setActiveGroupTab] = useState<string>('all');
+  const [categorySearchTerm, setCategorySearchTerm] = useState<string>('');
+  const [showCategoryGuide, setShowCategoryGuide] = useState<boolean>(false);
 
   // Rezultati i učitavanje
   const [places, setPlaces] = useState<GoogleMapsPlace[]>([]);
@@ -95,6 +174,13 @@ export const LeadFinderView: React.FC = () => {
 
   const activeCity = customCity.trim() || selectedCity;
 
+  // Custom Google Maps API Key state
+  const [customApiKey, setCustomApiKey] = useState<string>(() => localStorage.getItem('zanatflow_custom_google_maps_api_key') || '');
+  const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState<boolean>(false);
+  const [tempApiKey, setTempApiKey] = useState<string>('');
+
+  const effectiveApiKey = customApiKey.trim() || import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
+
   // Izvršavanje pretrage
   const handleRunSearch = async () => {
     setIsLoading(true);
@@ -113,6 +199,7 @@ export const LeadFinderView: React.FC = () => {
         queryText: queryText,
         minRating: minRating,
         minReviews: minReviews,
+        apiKey: effectiveApiKey,
       });
 
       setPlaces(results);
@@ -283,18 +370,28 @@ export const LeadFinderView: React.FC = () => {
     showNotification(`Web prisustvo za "${place.name}" je ponovo analizirano.`);
   };
 
-  // Statistika
   const totalCount = places.length;
   const noWebCount = places.filter((p) => p.webStatus === 'NO_WEBSITE').length;
   const needsReconCount = places.filter((p) => p.webStatus === 'NEEDS_RECONSTRUCTION' || p.webStatus === 'BROKEN_WEBSITE').length;
   const highPotentialCount = places.filter((p) => p.leadScore >= 80).length;
   const addedToCRMCount = places.filter((p) => leads.some((l) => l.googlePlaceId === p.placeId)).length;
 
-  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
+  const handleSaveApiKey = () => {
+    const trimmed = tempApiKey.trim();
+    if (trimmed) {
+      localStorage.setItem('zanatflow_custom_google_maps_api_key', trimmed);
+      setCustomApiKey(trimmed);
+      showNotification('Google Maps API Ključ je sačuvan u vašem pregledniku!');
+    } else {
+      localStorage.removeItem('zanatflow_custom_google_maps_api_key');
+      setCustomApiKey('');
+      showNotification('Privatni API ključ je uklonjen. Koriste se sistemske postavke.', 'info');
+    }
+    setIsApiKeyModalOpen(false);
+  };
 
-  return (
-    <APIProvider apiKey={apiKey} libraries={GOOGLE_MAPS_LIBRARIES}>
-      <div className="space-y-6 pb-12 font-sans text-slate-900 dark:text-slate-100">
+  const content = (
+    <div className="space-y-6 pb-12 font-sans text-slate-900 dark:text-slate-100">
       {/* Toast Notification Banner */}
       {notification && (
         <div
@@ -328,7 +425,22 @@ export const LeadFinderView: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
+          <button
+            onClick={() => {
+              setTempApiKey(customApiKey);
+              setIsApiKeyModalOpen(true);
+            }}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 border ${
+              effectiveApiKey
+                ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300'
+                : 'bg-amber-50 dark:bg-amber-950/60 border-amber-300 dark:border-amber-800 text-amber-700 dark:text-amber-300'
+            }`}
+          >
+            <Zap className="w-4 h-4" />
+            <span>{effectiveApiKey ? 'API Ključ postavljen' : 'Postavi API Ključ'}</span>
+          </button>
+
           <button
             onClick={handleExportCSV}
             disabled={places.length === 0}
@@ -411,29 +523,240 @@ export const LeadFinderView: React.FC = () => {
           </div>
         </div>
 
-        {/* Category Chips Multi-Select */}
-        <div className="space-y-2">
-          <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300">
-            Kategorije djelatnosti (Kliknite za odabir jedne ili više kategorija)
-          </label>
-          <div className="flex flex-wrap gap-2">
-            {PRESET_CATEGORIES.map((cat) => {
-              const isSelected = selectedCategories.includes(cat);
-              return (
+        {/* Category Selector with Groups, Search and Rationale Guide */}
+        <div className="space-y-3 pt-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-2">
+            <div>
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+                <span>Kategorije djelatnosti pogodnih za prodaju web stranica ({PRESET_CATEGORIES.length})</span>
+              </label>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                Odaberite jednu ili više kategorija za traženje potencijalnih klijenata na mapi.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => setShowCategoryGuide(!showCategoryGuide)}
+                className="px-3 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 text-xs font-bold border border-amber-200 dark:border-amber-900 hover:bg-amber-100 transition-all flex items-center gap-1.5"
+              >
+                <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
+                <span>Zašto ovim djelatnostima treba web?</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSelectedCategories([...PRESET_CATEGORIES])}
+                className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[11px] font-semibold hover:bg-slate-200 transition-all"
+              >
+                Sve ({PRESET_CATEGORIES.length})
+              </button>
+
+              {selectedCategories.length > 0 && (
                 <button
-                  key={cat}
                   type="button"
-                  onClick={() => toggleCategory(cat)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border ${
-                    isSelected
-                      ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700'
-                  }`}
+                  onClick={() => setSelectedCategories([])}
+                  className="px-2.5 py-1 rounded-lg bg-rose-50 dark:bg-rose-950 text-rose-600 dark:text-rose-400 text-[11px] font-semibold hover:bg-rose-100 transition-all"
                 >
-                  {cat}
+                  Poništi
                 </button>
-              );
-            })}
+              )}
+            </div>
+          </div>
+
+          {/* Guide Box Explanation */}
+          {showCategoryGuide && (
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-50 to-indigo-50 dark:from-amber-950/40 dark:to-indigo-950/40 border border-amber-200 dark:border-indigo-900 space-y-3 text-xs animate-in fade-in">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-center gap-2 font-bold text-slate-900 dark:text-white">
+                  <Lightbulb className="w-4 h-4 text-amber-500 shrink-0" />
+                  <span>Vodič: Zašto ove nove djelatnosti imaju najveću potrebu za web stranicom?</span>
+                </div>
+                <button
+                  onClick={() => setShowCategoryGuide(false)}
+                  className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-[11px] text-slate-700 dark:text-slate-300">
+                <div className="p-2.5 rounded-xl bg-white/80 dark:bg-slate-900/80 border border-amber-100 dark:border-slate-800 space-y-1">
+                  <p className="font-bold text-amber-700 dark:text-amber-400">🚗 Auto škole & Rent-a-Car</p>
+                  <p>Kandidati traže cjenovnik obuke, ispitne termine i mogućnost online prijave. Rent-a-Car agencije gube klijente ako nemaju direktni booking voznog parka.</p>
+                </div>
+
+                <div className="p-2.5 rounded-xl bg-white/80 dark:bg-slate-900/80 border border-amber-100 dark:border-slate-800 space-y-1">
+                  <p className="font-bold text-indigo-700 dark:text-indigo-400">⚖️ Advokati & Knjigovodstvo</p>
+                  <p>High-ticket B2B klijenti biraju pravne i knjigovodstvene firme na osnovu stručnosti predstavljene na webu. Nedostatak weba ruši profesionalni kredibilitet.</p>
+                </div>
+
+                <div className="p-2.5 rounded-xl bg-white/80 dark:bg-slate-900/80 border border-amber-100 dark:border-slate-800 space-y-1">
+                  <p className="font-bold text-emerald-700 dark:text-emerald-400">🪵 Stolarija & Građevina</p>
+                  <p>Klijenti za kuhinje po mjeri i renovacije traže vizuelni portfolio radova. Web stranica sa kalkulatorom ili upitnikom donosi ugovore od više hiljada KM.</p>
+                </div>
+
+                <div className="p-2.5 rounded-xl bg-white/80 dark:bg-slate-900/80 border border-amber-100 dark:border-slate-800 space-y-1">
+                  <p className="font-bold text-rose-700 dark:text-rose-400">🚨 Šlep službe & Vodoinstalateri</p>
+                  <p>Potrebne su im brze mobilne stranice sa SOS pozivom na jedan klik. Kada nekome pukne cijev ili stane auto na autoputu, zovu prvu firmu na Google-u!</p>
+                </div>
+
+                <div className="p-2.5 rounded-xl bg-white/80 dark:bg-slate-900/80 border border-amber-100 dark:border-slate-800 space-y-1">
+                  <p className="font-bold text-purple-700 dark:text-purple-400">💍 Sale za vjenčanja & Fotografi</p>
+                  <p>Budući mladenci traže galerije proslava, virtuelle ture i provjeru slobodnih termina mjesecima unaprijed. Web sajt im služi kao primarni prodajni alat.</p>
+                </div>
+
+                <div className="p-2.5 rounded-xl bg-white/80 dark:bg-slate-900/80 border border-amber-100 dark:border-slate-800 space-y-1">
+                  <p className="font-bold text-cyan-700 dark:text-cyan-400">🦷 Stomatologija & Fizioterapija</p>
+                  <p>Pacijenti iz dijaspore i lokalci zakazuju preglede preko weba. Prosti cjenovnik i biografije doktora pretvaraju posjetioce u pacijente.</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Group Tabs & Filter Search */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+            {/* Category Groups Filter Tabs */}
+            <div className="flex flex-wrap items-center gap-1.5 w-full sm:w-auto">
+              <button
+                type="button"
+                onClick={() => setActiveGroupTab('all')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                  activeGroupTab === 'all'
+                    ? 'bg-indigo-600 text-white shadow-xs'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+                }`}
+              >
+                Sve grupe ({PRESET_CATEGORIES.length})
+              </button>
+
+              {CATEGORY_GROUPS.map((group) => {
+                const isActive = activeGroupTab === group.id;
+                return (
+                  <button
+                    key={group.id}
+                    type="button"
+                    onClick={() => setActiveGroupTab(group.id)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                      isActive
+                        ? 'bg-indigo-600 text-white shadow-xs'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+                    }`}
+                  >
+                    <span>{group.name}</span>
+                    <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
+                      {group.categories.length}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Quick Search for Categories */}
+            <div className="relative w-full sm:w-64">
+              <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                value={categorySearchTerm}
+                onChange={(e) => setCategorySearchTerm(e.target.value)}
+                placeholder="Pretraži djelatnosti..."
+                className="w-full pl-8 pr-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs focus:ring-2 focus:ring-indigo-500"
+              />
+              {categorySearchTerm && (
+                <button
+                  type="button"
+                  onClick={() => setCategorySearchTerm('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Render Categories Chips/Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 pt-1 max-h-72 overflow-y-auto pr-1">
+            {CATEGORY_GROUPS.filter((g) => activeGroupTab === 'all' || activeGroupTab === g.id).flatMap((group) =>
+              group.categories
+                .filter((cat) =>
+                  categorySearchTerm
+                    ? cat.name.toLowerCase().includes(categorySearchTerm.toLowerCase()) ||
+                      cat.reason.toLowerCase().includes(categorySearchTerm.toLowerCase())
+                    : true
+                )
+                .map((catItem) => {
+                  const isSelected = selectedCategories.includes(catItem.name);
+                  return (
+                    <div
+                      key={catItem.name}
+                      onClick={() => toggleCategory(catItem.name)}
+                      className={`p-2.5 rounded-2xl border text-left cursor-pointer transition-all flex flex-col justify-between space-y-1.5 ${
+                        isSelected
+                          ? 'bg-indigo-50/90 dark:bg-indigo-950/60 border-indigo-500 dark:border-indigo-600 ring-1 ring-indigo-500 shadow-xs'
+                          : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-1.5">
+                        <div className="flex items-center gap-2">
+                          <div
+                            className={`w-4 h-4 rounded-md flex items-center justify-center shrink-0 text-xs ${
+                              isSelected ? 'bg-indigo-600 text-white' : 'border border-slate-300 dark:border-slate-700'
+                            }`}
+                          >
+                            {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
+                          </div>
+                          <span className="font-bold text-xs text-slate-900 dark:text-white line-clamp-1">
+                            {catItem.name}
+                          </span>
+                        </div>
+
+                        {catItem.badge && (
+                          <span
+                            className={`px-1.5 py-0.5 rounded-md text-[9px] font-bold shrink-0 ${
+                              catItem.badge === 'Top prilika' || catItem.badge === 'Preporučeno'
+                                ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300'
+                                : catItem.badge === 'Visok prihod' || catItem.badge === 'Visok odziv'
+                                ? 'bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300'
+                                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                            }`}
+                          >
+                            {catItem.badge}
+                          </span>
+                        )}
+                      </div>
+
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-tight">
+                        {catItem.reason}
+                      </p>
+                    </div>
+                  );
+                })
+            )}
+          </div>
+
+          {/* Selected Categories Summary & Custom Category input */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+            <div className="text-[11px] text-slate-500 flex items-center gap-1.5">
+              <span className="font-bold text-slate-800 dark:text-slate-200">
+                Odabrano kategorija: <span className="text-indigo-600 dark:text-indigo-400 font-extrabold">{selectedCategories.length}</span>
+              </span>
+              {selectedCategories.length > 0 && (
+                <span className="truncate max-w-md text-slate-400">({selectedCategories.join(', ')})</span>
+              )}
+            </div>
+
+            {/* Custom Category fallback */}
+            <div className="w-full sm:w-72">
+              <input
+                type="text"
+                value={customCategory}
+                onChange={(e) => setCustomCategory(e.target.value)}
+                placeholder="+ Ručni unos custom djelatnosti..."
+                className="w-full px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
           </div>
         </div>
 
@@ -941,7 +1264,92 @@ export const LeadFinderView: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* API KEY CONFIGURATION MODAL */}
+      {isApiKeyModalOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6 sm:p-8 space-y-5 relative">
+            <button
+              onClick={() => setIsApiKeyModalOpen(false)}
+              className="absolute top-5 right-5 p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-900 dark:hover:text-white"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="space-y-1">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 text-xs font-bold">
+                <Zap className="w-3.5 h-3.5" />
+                <span>Google Maps API Postavke</span>
+              </div>
+              <h3 className="text-lg font-black text-slate-900 dark:text-white">Google Maps API Ključ</h3>
+              <p className="text-xs text-slate-500">
+                Unesite vaš vlastiti Google Maps API Ključ (<code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-indigo-600">AIzaSy...</code>) za direktan dohvat sa Google Places API-ja.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Google Maps API Ključ
+                </label>
+                <input
+                  type="password"
+                  value={tempApiKey}
+                  onChange={(e) => setTempApiKey(e.target.value)}
+                  placeholder="AIzaSy..."
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs font-mono text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-900 text-amber-800 dark:text-amber-300 text-[11px] space-y-1">
+                <p className="font-bold flex items-center gap-1">
+                  <Info className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                  Uputstvo za Vercel Deployment:
+                </p>
+                <p>
+                  Na Vercel nadzornoj ploči (Settings &rarr; Environment Variables) dodajte varijablu <code className="font-mono font-bold bg-amber-100 dark:bg-amber-900 px-1 rounded">VITE_GOOGLE_MAPS_API_KEY</code> sa vašim API ključem i pokrenite novi <em>Redeploy</em>.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+              {customApiKey && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTempApiKey('');
+                    localStorage.removeItem('zanatflow_custom_google_maps_api_key');
+                    setCustomApiKey('');
+                    showNotification('Uklonjen privatni API ključ.', 'info');
+                    setIsApiKeyModalOpen(false);
+                  }}
+                  className="px-4 py-2 rounded-xl bg-rose-50 dark:bg-rose-950 text-rose-600 text-xs font-bold hover:bg-rose-100 dark:hover:bg-rose-900 transition-all"
+                >
+                  Ukloni ključ
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={handleSaveApiKey}
+                className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-md transition-all"
+              >
+                Sačuvaj ključ
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-    </APIProvider>
   );
+
+  if (effectiveApiKey) {
+    return (
+      <APIProvider apiKey={effectiveApiKey} libraries={GOOGLE_MAPS_LIBRARIES}>
+        {content}
+      </APIProvider>
+    );
+  }
+
+  return content;
 };

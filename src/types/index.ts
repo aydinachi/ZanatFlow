@@ -281,3 +281,139 @@ export interface UserSettings {
   defaultCurrency: Currency;
   theme: 'light' | 'dark';
 }
+
+// ==========================================
+// AI SALES AGENT TYPES
+// ==========================================
+
+export interface SalesAgentSettings {
+  id: string;
+  brandName: string;
+  fullName: string;
+  shortIntro: string;
+  location: string;
+  contactEmail: string;
+  contactPhone: string;
+  portfolioUrl: string;
+  projectLinks: string;
+  presentationStyle: string;
+  defaultLanguage: 'Bosanski' | 'Hrvatski' | 'Srpski' | 'Engleski' | 'Njemački';
+  tone: 'Profesionalan i prirodan' | 'Opušten i prijateljski' | 'Formalan';
+  messageLength: 'Kratka i direktna' | 'Srednje dužine' | 'Detaljna';
+  includeFreeDemo: boolean;
+  includeMeeting: boolean;
+  includePortfolio: boolean;
+  priceInMessageOption: 'Uključi u poruku' | 'Izostavi iz poruke' | 'Samo za internu procjenu';
+  defaultSenderEmail?: string;
+  customProposalTemplate?: string;
+  createdAt: string;
+  updatedAt: string;
+  userId: string;
+}
+
+export interface LeadAnalysis {
+  id: string;
+  leadId: string;
+  companyName: string;
+  website: string;
+  webStatus: 'NO_WEBSITE' | 'NEEDS_RECONSTRUCTION' | 'BROKEN_WEBSITE' | 'HAS_WEBSITE';
+  leadScore: number; // 0 - 100
+  scoreCategory: 'Vrlo visok potencijal' | 'Visok potencijal' | 'Srednji potencijal' | 'Nizak potencijal';
+  scoreReasons: string[];
+  summary: string;
+  onlinePresenceAnalysis: string;
+  identifiedProblems: string[];
+  proposedService: string;
+  offerType: 'Nova web stranica' | 'Rekonstrukcija web stranice' | 'Dodatne funkcionalnosti i automatizacija';
+  recommendedChannel: 'email' | 'whatsapp';
+  reasonForInterest: string;
+  reliability: 'Pouzdan podatak' | 'Potrebna ručna provjera' | 'Nije moguće potvrditi';
+  createdAt: string;
+  updatedAt: string;
+  userId: string;
+}
+
+export type SalesMessageStatus = 'Draft' | 'Pending Approval' | 'Approved' | 'Rejected' | 'Sent' | 'Failed';
+export type SalesChannel = 'email' | 'whatsapp';
+
+export interface SalesMessage {
+  id: string;
+  leadId: string;
+  companyName: string;
+  contactName: string;
+  recipientEmail: string;
+  recipientPhone: string;
+  channel: SalesChannel;
+  offerType: 'Nova web stranica' | 'Rekonstrukcija web stranice' | 'Dodatne funkcionalnosti i automatizacija';
+  proposedService: string;
+  leadScore: number;
+  reasonForContact: string;
+  subject?: string;
+  bodyText: string;
+  status: SalesMessageStatus;
+  rejectionReason?: string;
+  approvedAt?: string;
+  approvedBy?: string;
+  sentAt?: string;
+  sendError?: string;
+  sentMessageId?: string;
+  language: 'Bosanski' | 'Hrvatski' | 'Srpski' | 'Engleski' | 'Njemački';
+  createdAt: string;
+  updatedAt: string;
+  userId: string;
+}
+
+export interface SalesActivity {
+  id: string;
+  leadId: string;
+  companyName: string;
+  type: 'Analiza pokrenuta' | 'Poruka generisana' | 'Poruka odobrena' | 'Poruka odbijena' | 'Poruka poslana' | 'Odgovor primljen' | 'Follow-up zakazan';
+  channel?: SalesChannel;
+  description: string;
+  messageId?: string;
+  createdAt: string;
+  userId: string;
+}
+
+export type FollowUpStatus =
+  | 'Nije kontaktiran'
+  | 'Poruka pripremljena'
+  | 'Poruka poslana'
+  | 'Čeka se odgovor'
+  | 'Odgovorio'
+  | 'Zainteresovan'
+  | 'Potrebna dodatna komunikacija'
+  | 'Odbio ponudu'
+  | 'Nije zainteresovan'
+  | 'Saradnja dogovorena'
+  | 'Ne kontaktirati ponovo';
+
+export interface SalesFollowUp {
+  id: string;
+  leadId: string;
+  companyName: string;
+  channel: SalesChannel;
+  lastContactDate?: string;
+  nextFollowUpDate?: string;
+  status: FollowUpStatus;
+  lastMessageText?: string;
+  suggestedAction?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+  userId: string;
+}
+
+export interface SalesIntegration {
+  id: string;
+  channel: 'gmail' | 'whatsapp';
+  isConnected: boolean;
+  accountEmail?: string;
+  senderName?: string;
+  phoneNumberId?: string;
+  phoneNumber?: string;
+  accessToken?: string;
+  lastTestedAt?: string;
+  updatedAt: string;
+  userId: string;
+}

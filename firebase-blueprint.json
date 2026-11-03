@@ -166,6 +166,139 @@
         "updatedAt": { "type": "string", "maxLength": 50 }
       },
       "required": ["name", "basePrice", "userId"]
+    },
+    "SalesAgentSettings": {
+      "title": "SalesAgentSettings",
+      "description": "Postavke i preferencije AI Sales Agenta za brend i prodaju",
+      "type": "object",
+      "properties": {
+        "brandName": { "type": "string", "maxLength": 200 },
+        "fullName": { "type": "string", "maxLength": 150 },
+        "shortIntro": { "type": "string", "maxLength": 2000 },
+        "location": { "type": "string", "maxLength": 150 },
+        "contactEmail": { "type": "string", "maxLength": 150 },
+        "contactPhone": { "type": "string", "maxLength": 50 },
+        "portfolioUrl": { "type": "string", "maxLength": 300 },
+        "projectLinks": { "type": "string", "maxLength": 1000 },
+        "presentationStyle": { "type": "string", "maxLength": 500 },
+        "defaultLanguage": { "type": "string", "maxLength": 30 },
+        "tone": { "type": "string", "maxLength": 50 },
+        "messageLength": { "type": "string", "maxLength": 50 },
+        "includeFreeDemo": { "type": "boolean" },
+        "includeMeeting": { "type": "boolean" },
+        "includePortfolio": { "type": "boolean" },
+        "priceInMessageOption": { "type": "string", "maxLength": 50 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "maxLength": 50 },
+        "updatedAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["userId"]
+    },
+    "LeadAnalysis": {
+      "title": "LeadAnalysis",
+      "description": "Detaljna AI analiza poslovanja i web prisustva leada",
+      "type": "object",
+      "properties": {
+        "leadId": { "type": "string", "maxLength": 128 },
+        "companyName": { "type": "string", "maxLength": 200 },
+        "website": { "type": "string", "maxLength": 300 },
+        "webStatus": { "type": "string", "maxLength": 50 },
+        "leadScore": { "type": "number" },
+        "scoreCategory": { "type": "string", "maxLength": 100 },
+        "summary": { "type": "string", "maxLength": 2000 },
+        "onlinePresenceAnalysis": { "type": "string", "maxLength": 3000 },
+        "identifiedProblems": { "type": "string", "maxLength": 2000 },
+        "proposedService": { "type": "string", "maxLength": 300 },
+        "offerType": { "type": "string", "maxLength": 100 },
+        "recommendedChannel": { "type": "string", "maxLength": 50 },
+        "reasonForInterest": { "type": "string", "maxLength": 1500 },
+        "reliability": { "type": "string", "maxLength": 100 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "maxLength": 50 },
+        "updatedAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["leadId", "userId"]
+    },
+    "SalesMessage": {
+      "title": "SalesMessage",
+      "description": "Generisane prodajne poruke sa statusom odobrenja",
+      "type": "object",
+      "properties": {
+        "leadId": { "type": "string", "maxLength": 128 },
+        "companyName": { "type": "string", "maxLength": 200 },
+        "contactName": { "type": "string", "maxLength": 150 },
+        "recipientEmail": { "type": "string", "maxLength": 150 },
+        "recipientPhone": { "type": "string", "maxLength": 50 },
+        "channel": { "type": "string", "maxLength": 30 },
+        "offerType": { "type": "string", "maxLength": 100 },
+        "proposedService": { "type": "string", "maxLength": 300 },
+        "leadScore": { "type": "number" },
+        "reasonForContact": { "type": "string", "maxLength": 1000 },
+        "subject": { "type": "string", "maxLength": 300 },
+        "bodyText": { "type": "string", "maxLength": 5000 },
+        "status": { "type": "string", "maxLength": 50 },
+        "rejectionReason": { "type": "string", "maxLength": 1000 },
+        "approvedAt": { "type": "string", "maxLength": 50 },
+        "approvedBy": { "type": "string", "maxLength": 150 },
+        "sentAt": { "type": "string", "maxLength": 50 },
+        "sendError": { "type": "string", "maxLength": 1000 },
+        "sentMessageId": { "type": "string", "maxLength": 200 },
+        "language": { "type": "string", "maxLength": 30 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "maxLength": 50 },
+        "updatedAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["leadId", "channel", "bodyText", "status", "userId"]
+    },
+    "SalesActivity": {
+      "title": "SalesActivity",
+      "description": "Dnevnik aktivnosti i promjena statusa u AI Sales Agentu",
+      "type": "object",
+      "properties": {
+        "leadId": { "type": "string", "maxLength": 128 },
+        "companyName": { "type": "string", "maxLength": 200 },
+        "type": { "type": "string", "maxLength": 50 },
+        "channel": { "type": "string", "maxLength": 30 },
+        "description": { "type": "string", "maxLength": 2000 },
+        "messageId": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["leadId", "type", "description", "userId"]
+    },
+    "SalesFollowUp": {
+      "title": "SalesFollowUp",
+      "description": "Evidencija i zakazana naknadna praćenja za leada",
+      "type": "object",
+      "properties": {
+        "leadId": { "type": "string", "maxLength": 128 },
+        "companyName": { "type": "string", "maxLength": 200 },
+        "channel": { "type": "string", "maxLength": 30 },
+        "lastContactDate": { "type": "string", "maxLength": 50 },
+        "nextFollowUpDate": { "type": "string", "maxLength": 50 },
+        "status": { "type": "string", "maxLength": 50 },
+        "lastMessageText": { "type": "string", "maxLength": 3000 },
+        "suggestedAction": { "type": "string", "maxLength": 1000 },
+        "notes": { "type": "string", "maxLength": 2000 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "maxLength": 50 },
+        "updatedAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["leadId", "userId"]
+    },
+    "SalesIntegration": {
+      "title": "SalesIntegration",
+      "description": "Status povezanosti sa Gmail i WhatsApp Business kanalima",
+      "type": "object",
+      "properties": {
+        "channel": { "type": "string", "maxLength": 30 },
+        "isConnected": { "type": "boolean" },
+        "accountEmail": { "type": "string", "maxLength": 150 },
+        "phoneNumberId": { "type": "string", "maxLength": 150 },
+        "updatedAt": { "type": "string", "maxLength": 50 },
+        "userId": { "type": "string", "maxLength": 128 }
+      },
+      "required": ["channel", "isConnected", "userId"]
     }
   },
   "firestore": {
@@ -196,6 +329,30 @@
     "/services/{serviceId}": {
       "schema": "Service",
       "description": "Definisane usluge i cjenovnik"
+    },
+    "/salesAgentSettings/{settingsId}": {
+      "schema": "SalesAgentSettings",
+      "description": "Postavke AI Sales Agenta"
+    },
+    "/leadAnalyses/{analysisId}": {
+      "schema": "LeadAnalysis",
+      "description": "Izvještaji AI analize leadova"
+    },
+    "/salesMessages/{messageId}": {
+      "schema": "SalesMessage",
+      "description": "Poruke i Approval Center zapisi"
+    },
+    "/salesActivities/{activityId}": {
+      "schema": "SalesActivity",
+      "description": "Dnevnik aktivnosti AI Sales Agenta"
+    },
+    "/salesFollowUps/{followUpId}": {
+      "schema": "SalesFollowUp",
+      "description": "Follow-up evidencija i raspored"
+    },
+    "/salesIntegrations/{integrationId}": {
+      "schema": "SalesIntegration",
+      "description": "Statusi integracija kanala"
     }
   }
 }
